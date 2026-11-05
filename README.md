@@ -107,10 +107,16 @@ Aucun preset unsigned, widget navigateur ou clé dans le frontend n’est néces
 
 Les tests couvrent le SDK Cloudinary avec transport simulé (signature configurée côté serveur, URL CDN, absence de binaire en base, conservation des liens, permissions et erreurs). Un vrai upload sur votre compte reste à tester après saisie des clés.
 
-## Cartes produits sur l’accueil
+## Cartes produits sur l’accueil et le catalogue
 
-Dans **Produits & stocks → Modifier**, utiliser **Image principale** pour la photo du produit, avec le fond déjà présent dans le fichier. Elle est cadrée au format portrait 5:6, centrée, sans aplat de couleur, marge intérieure ni mélange de couleurs ajouté par le site. Le champ **Texture derrière la photo sur l’accueil** permet d’importer une autre image (via Cloudinary) ou de coller son URL. Cette texture est facultative ; vider le champ puis enregistrer la retire de la carte sans supprimer le fichier de la médiathèque. Le nom et la flèche sont alignés sur la photo. Toute la carte est cliquable.
+Dans **Produits & stocks → Modifier**, utiliser **Image principale** pour la photo du produit, avec le fond déjà présent dans le fichier. Elle est cadrée au format portrait 5:6, centrée, sans aplat de couleur, marge intérieure ni mélange de couleurs ajouté par le site. Le champ **Texture derrière la photo — accueil et catalogue** permet d’importer une autre image (via Cloudinary) ou de coller son URL. Cette texture est facultative ; vider le champ puis enregistrer la retire de la carte sans supprimer le fichier de la médiathèque. Le nom et la flèche sont alignés sur la photo. Toute la carte est cliquable.
 
-La flèche glisse et devient orange au survol ou au focus clavier. Le mode « mouvements réduits » désactive les déplacements. Le catalogue et les fiches produits gardent leur présentation ; le choix de couleur reste réservé au fond de la fiche produit.
+La flèche glisse et devient orange au survol ou au focus clavier. Le mode « mouvements réduits » désactive les déplacements. Les mêmes cartes, textures et animations sont utilisées dans **Nos Produits**, avec les prix affichés sous les noms. Sur la fiche produit, les photos occupent directement le bloc image sans aplat coloré ajouté.
 
 La migration ajoute `products.texture_image` avec une valeur vide pour les produits existants, sans modifier leurs autres informations. Conserver `npm run db:migrate && npm start` comme commande de démarrage Render. Les images utilisées comme textures sont protégées contre la suppression dans la médiathèque.
+
+## Galerie de la fiche produit
+
+La photo principale et les images de **Galerie complémentaire** sont affichées dans un seul carrousel, en haut de la fiche. Chaque photo remplit le bloc avec un cadrage centré ; aucune marge ni couleur de fond n’est ajoutée. L’ordre est celui du formulaire, avec l’image principale en premier et les URL identiques dédupliquées.
+
+Les flèches, les points et les touches gauche/droite, Début/Fin permettent de naviguer. Sur mobile, le défilement tactile est natif. La photo sélectionnée est conservée lors d’un changement de largeur d’écran. Les transitions respectent « mouvements réduits ». Avec une seule photo, les commandes superflues sont masquées. Les photos complémentaires ne créent plus de grille sous le descriptif. Aucune modification des données existantes ni nouvelle migration n’est nécessaire pour cette présentation.

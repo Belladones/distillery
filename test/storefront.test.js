@@ -1,6 +1,11 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { productMarkup, productCard } from "../public/storefront.js";
+import {
+  productMarkup,
+  productCard,
+  productPhotos,
+  catalogMarkup,
+} from "../public/storefront.js";
 const p = {
   id: 1,
   slug: "gin-test",
@@ -68,4 +73,34 @@ test("la carte d’accueil utilise la photo sans fond ajouté et sa texture facu
   assert.ok(!html.includes("<script>"));
   const plain = productCard(p, 0, true);
   assert.ok(!plain.includes('class="product-card__texture"'));
+});
+
+test("la fiche rassemble la photo principale et les photos complémentaires sans doublons", () => {
+  const product = {
+    ...p,
+    images: [p.image, "/media/photo2", "/media/photo3", "/media/photo2"],
+  };
+  assert.deepEqual(productPhotos(product), [
+    p.image,
+    "/media/photo2",
+    "/media/photo3",
+  ]);
+  const html = productMarkup(product);
+  assert.equal(
+    (html.match(/aria-roledescription="diapositive"/g) || []).length,
+    3,
+  );
+  assert.ok(!html.includes('<section class="product-gallery'));
+  assert.ok(!html.includes("--product-color"));
+  const single = productMarkup({ ...p, images: [p.image] });
+  assert.ok(!single.includes('aria-label="Photo suivante"'));
+  assert.ok(!single.includes('aria-label="Photo précédente"'));
+});
+test("le catalogue utilise aussi la texture personnalisée et n’ajoute pas d’aplat coloré", () => {
+  const html = catalogMarkup([
+    { ...p, texture_image: "/media/texture-catalogue" },
+  ]);
+  assert.match(html, /src="\/media\/texture-catalogue"/);
+  assert.ok(!html.includes("background-color"));
+  assert.match(html, /42,00/);
 });

@@ -1,3 +1,4 @@
+import { initProductGallery } from "./product-gallery.js";
 import { defaultHome } from "./home-content.js";
 import {
   imageField,
@@ -318,7 +319,7 @@ function editProduct(id) {
   const field = (key, label, type = "text") =>
     `<label>${label}<input type="${type}" name="${key}" value="${escape(p[key] ?? "")}" ${type === "number" ? 'min="0" step="1"' : ""} required></label>`;
   modal(
-    `<div class="eyebrow">ADMINISTRATION</div><h2 class="modal-title">${id ? "Modifier le produit" : "Un nouvel esprit."}</h2><form id="product-form" class="form"><div class="form-grid">${field("name", "Nom")}${field("slug", "Identifiant URL (lettres, chiffres, tirets)")}${field("category", "Catégorie")}${field("price_cents", "Prix TTC en centimes (5900 = 59 €)", "number")}${field("volume", "Contenance")}${field("abv", "Degré d’alcool")}${field("stock", "Quantité disponible", "number")}${field("color", "Fond de la fiche produit (hors accueil)", "color")}<div class="span2">${imageField("image", "Image principale", p.image)}</div><div class="span2">${imageField("texture_image", "Texture derrière la photo sur l’accueil (facultative)", p.texture_image || "", false)}<p class="modal-subtitle">La photo principale est affichée avec son propre fond. La texture apparaît derrière elle. Laissez ce champ vide pour ne pas afficher de texture.</p></div><div class="span2">${galleryField(p.images || [])}</div>${["description", "composition", "cocktail"].map((k) => `<label class="span2">${{ description: "Description", composition: "Composition", cocktail: "Recette de cocktail" }[k]}<textarea name="${k}" required>${escape(p[k] || "")}</textarea></label>`).join("")}</div><label class="check"><input type="checkbox" name="active" ${p.active ? "checked" : ""}> Visible dans la boutique</label><button type="submit" class="primary">Enregistrer le produit ↗</button></form>`,
+    `<div class="eyebrow">ADMINISTRATION</div><h2 class="modal-title">${id ? "Modifier le produit" : "Un nouvel esprit."}</h2><form id="product-form" class="form"><div class="form-grid">${field("name", "Nom")}${field("slug", "Identifiant URL (lettres, chiffres, tirets)")}${field("category", "Catégorie")}${field("price_cents", "Prix TTC en centimes (5900 = 59 €)", "number")}${field("volume", "Contenance")}${field("abv", "Degré d’alcool")}${field("stock", "Quantité disponible", "number")}<input type="hidden" name="color" value="${escape(p.color)}"><div class="span2">${imageField("image", "Image principale", p.image)}</div><div class="span2">${imageField("texture_image", "Texture derrière la photo — accueil et catalogue (facultative)", p.texture_image || "", false)}<p class="modal-subtitle">La photo principale est affichée avec son propre fond. La texture apparaît derrière elle dans les listes de produits. Laissez ce champ vide pour ne pas afficher de texture.</p></div><div class="span2">${galleryField(p.images || [])}</div>${["description", "composition", "cocktail"].map((k) => `<label class="span2">${{ description: "Description", composition: "Composition", cocktail: "Recette de cocktail" }[k]}<textarea name="${k}" required>${escape(p[k] || "")}</textarea></label>`).join("")}</div><label class="check"><input type="checkbox" name="active" ${p.active ? "checked" : ""}> Visible dans la boutique</label><button type="submit" class="primary">Enregistrer le produit ↗</button></form>`,
     true,
   );
   $("#product-form").addEventListener("submit", (e) => {
@@ -392,6 +393,7 @@ let carouselTimer,
   testimonialIndex = 0,
   carouselPaused = false,
   pageQuantity = 1;
+let cleanupProductGallery = () => {};
 function canLeaveHome() {
   return (
     $("#home-form")?.dataset.dirty !== "true" ||
@@ -446,6 +448,8 @@ function startCarousel() {
 }
 async function route() {
   clearInterval(carouselTimer);
+  cleanupProductGallery();
+  cleanupProductGallery = () => {};
   const account = location.hash === "#compte";
   $("#home").hidden = account;
   $("#account-page").hidden = !account;
@@ -483,6 +487,7 @@ async function route() {
     const p = products.find((p) => p.slug === slug);
     pageQuantity = p?.stock > 0 ? 1 : 0;
     $("#home").innerHTML = productMarkup(p);
+    cleanupProductGallery = initProductGallery($("#home"));
     document.title =
       (p?.name || "Produit introuvable") + " — Antoine Bravar Distillery";
   } else {
@@ -579,12 +584,6 @@ document.addEventListener("click", async (e) => {
   }
   if (el.dataset.productAdd && pageQuantity > 0)
     await add(Number(el.dataset.productAdd), pageQuantity);
-  if (el.dataset.productImage) {
-    modal(
-      `<img class="enlarged-product-image" src="${escape(el.dataset.productImage)}" alt="Vue agrandie du produit">`,
-      true,
-    );
-  }
   if (el.dataset.testimonial !== undefined) {
     setTestimonial(Number(el.dataset.testimonial));
     startCarousel();
