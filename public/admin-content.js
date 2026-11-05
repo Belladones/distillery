@@ -211,7 +211,7 @@ export async function renderHomeEditor(
   });
 }
 export async function renderMediaLibrary(container, { api, toast }) {
-  container.innerHTML = `<div class="editor-toolbar"><div><h2>Médiathèque</h2><p>Vos images sont conservées dans la base de données et restent disponibles après un redéploiement.</p></div><label class="upload-button">Importer des images<input type="file" accept="${accept}" multiple id="library-upload"></label></div><p id="library-status" role="status"></p><div class="media-library-grid"></div><button type="button" class="secondary" id="load-more-media" hidden>Afficher plus d’images</button>`;
+  container.innerHTML = `<div class="editor-toolbar"><div><h2>Médiathèque</h2><p>Retrouvez les images de vos produits et de votre page d’accueil.</p></div><label class="upload-button">Importer des images<input type="file" accept="${accept}" multiple id="library-upload"></label></div><p id="media-storage-status" class="notice" role="status"></p><p id="library-status" role="status"></p><div class="media-library-grid"></div><button type="button" class="secondary" id="load-more-media" hidden>Afficher plus d’images</button>`;
   let offset = 0;
   const status = container.querySelector("#library-status"),
     grid = container.querySelector(".media-library-grid"),
@@ -222,12 +222,22 @@ export async function renderMediaLibrary(container, { api, toast }) {
       grid.innerHTML = "";
     }
     const result = await api("/admin/media?offset=" + offset);
+    const storage = result.storage;
+    if (storage) {
+      container.querySelector("#media-storage-status").textContent =
+        storage.provider === "cloudinary"
+          ? storage.configured
+            ? "Nouveaux imports : Cloudinary. Les images déjà importées restent disponibles."
+            : "Cloudinary doit être configuré dans Render : CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY et CLOUDINARY_API_SECRET."
+          : "Stockage PostgreSQL activé explicitement.";
+      container.querySelector("#library-upload").disabled = !storage.configured;
+    }
     grid.insertAdjacentHTML(
       "beforeend",
       result.items
         .map(
           (m) =>
-            `<article class="media-card"><img src="${m.url}" alt="${escape(m.filename)}" loading="lazy"><h3>${escape(m.filename)}</h3><p>${m.width} × ${m.height} · ${formatSize(m.size)}</p><input value="${m.url}" readonly aria-label="Lien de l’image ${escape(m.filename)}"><div><button type="button" class="secondary" data-copy-media="${m.url}">Copier le lien</button><button type="button" class="secondary" data-delete-media="${m.id}">Supprimer</button></div></article>`,
+            `<article class="media-card"><img src="${m.url}" alt="${escape(m.filename)}" loading="lazy"><h3>${escape(m.filename)}</h3><p>${m.width} × ${m.height} · ${formatSize(m.size)} · ${m.storage === "cloudinary" ? "Cloudinary" : "PostgreSQL"}</p><input value="${m.url}" readonly aria-label="Lien de l’image ${escape(m.filename)}"><div><button type="button" class="secondary" data-copy-media="${m.url}">Copier le lien</button><button type="button" class="secondary" data-delete-media="${m.id}">Supprimer</button></div></article>`,
         )
         .join(""),
     );

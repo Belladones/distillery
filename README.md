@@ -74,7 +74,7 @@ Les visuels initiaux non joints utilisent une illustration de remplacement. Les 
 
 ## Upload des images et personnalisation de l’accueil
 
-Après déploiement de cette version, exécuter la migration réexécutable `npm run db:migrate`. Sur Render sans Shell, conserver la **Start Command** `npm run db:migrate && npm start` : elle crée les tables `media` et `site_content` sans supprimer le catalogue ni écraser le contenu déjà publié. Aucun disque persistant Render ni compte de stockage externe n’est requis.
+Après déploiement de cette version, exécuter la migration réexécutable `npm run db:migrate`. Sur Render sans Shell, conserver la **Start Command** `npm run db:migrate && npm start` : elle crée les tables `media` et `site_content` sans supprimer le catalogue ni écraser le contenu déjà publié. Aucun disque persistant Render n’est requis. Les nouveaux uploads utilisent Cloudinary ; voir la configuration ci-dessous.
 
 - **Produits & stocks → Modifier / Ajouter** : importer l’image principale et jusqu’à huit photos de galerie. L’import remplit les champs et affiche un aperçu ; cliquer ensuite sur **Enregistrer le produit**.
 - **Page d’accueil** : modifier le logo (facultatif), la bannière, les titres, le texte À propos, les six photos et descriptions du savoir-faire, les trois témoignages, la signature de marque, la collection, le bandeau, le pied de page et les métadonnées SEO. Les principales sections peuvent être masquées. **Prévisualiser** ouvre un aperçu sans publication. **Enregistrer et publier** rend les changements visibles dès le prochain chargement public, y compris dans le HTML de l’accueil. Une version concurrente n’est jamais écrasée silencieusement.
@@ -82,4 +82,27 @@ Après déploiement de cette version, exécuter la migration réexécutable `npm
 
 Formats acceptés : JPG, PNG, WebP, AVIF fixes ; 8 Mo et 36 mégapixels maximum par fichier. Le serveur vérifie le contenu, corrige l’orientation, réduit les dimensions à 2400 × 2400 maximum, supprime les métadonnées et convertit en WebP. SVG et fichiers animés ne sont pas acceptés à l’import. Les fichiers identiques après optimisation sont dédupliqués. Les routes d’upload sont réservées aux administrateurs et protégées par session et CSRF.
 
-Les images optimisées sont enregistrées dans PostgreSQL (`BYTEA`) et servies sur `/media/:id`, avec cache HTTP et ETag. Elles sont **publiques** dès leur import : ne pas y mettre de documents privés. Elles survivent aux redéploiements Render ; leur stockage et leurs sauvegardes utilisent l’espace et les limites de la base Neon. Pour un gros volume de médias, prévoir une migration vers un stockage objet.
+Les nouveaux fichiers optimisés sont envoyés à **Cloudinary** par le serveur avec des uploads signés. PostgreSQL conserve uniquement leurs métadonnées et leurs références Cloudinary (`data` reste NULL). Les liens `/media/:id` sont stables et redirigent vers l’URL HTTPS du CDN Cloudinary. Les images sont **publiques** dès l’import ; ne pas y mettre de documents privés.
+
+Les anciennes images PostgreSQL restent lisibles, même sans clés Cloudinary. Si un nouvel import est reconnu comme un doublon d’une image PostgreSQL, celle-ci est transférée sur Cloudinary en conservant son lien `/media/:id`, puis son binaire PostgreSQL est effacé après confirmation de l’upload. Aucun transfert massif ni suppression des anciennes images n’est effectué au déploiement. La suppression d’une image Cloudinary depuis la médiathèque supprime aussi le fichier distant ; si Cloudinary refuse la suppression, l’entrée reste disponible pour réessayer. Les références enregistrées via le lien local ou directement via l’URL CDN sont protégées.
+
+### Connecter Cloudinary sur Render
+
+1. Créer un compte sur https://cloudinary.com (offre gratuite disponible, sous réserve de ses quotas). Dans la console Cloudinary, relever le **Cloud name** et ouvrir **Settings → API Keys** pour la clé et le secret API.
+2. Dans **Render → service → Environment**, ajouter :
+
+   | Variable                | Valeur                   |
+   | ----------------------- | ------------------------ |
+   | `MEDIA_STORAGE`         | `cloudinary`             |
+   | `CLOUDINARY_CLOUD_NAME` | Le Cloud name, sans URL  |
+   | `CLOUDINARY_API_KEY`    | La clé API Cloudinary    |
+   | `CLOUDINARY_API_SECRET` | Le secret API Cloudinary |
+
+3. Conserver **Start Command** : `npm run db:migrate && npm start` (ou utiliser le hook de migration du Blueprint). Enregistrer puis redéployer.
+4. Dans l’administration, ouvrir **Médiathèque**. La configuration doit être indiquée, puis importer une photo de test et vérifier qu’elle apparaît aussi dans la Media Library Cloudinary et sur le site. Vérifier sa suppression après l’avoir retirée des produits et des contenus publiés.
+
+Aucun preset unsigned, widget navigateur ou clé dans le frontend n’est nécessaire. Ne jamais publier le secret API ni le communiquer dans le chat. Les valeurs doivent être saisies dans les variables sécurisées Render. En l’absence de clés, les nouveaux uploads sont désactivés avec un message de configuration ; aucun retour silencieux au stockage Neon n’est effectué. Les clés erronées, les quotas dépassés ou une panne Cloudinary produisent une erreur d’import. Les photos déjà référencées restent accessibles via leur URL publique.
+
+`MEDIA_STORAGE=postgres` reste disponible uniquement comme choix explicite pour le développement, les tests ou un retour au précédent stockage ; cela ne rapatrie pas les images Cloudinary existantes.
+
+Les tests couvrent le SDK Cloudinary avec transport simulé (signature configurée côté serveur, URL CDN, absence de binaire en base, conservation des liens, permissions et erreurs). Un vrai upload sur votre compte reste à tester après saisie des clés.

@@ -4,6 +4,7 @@ import sharp from "sharp";
 import bcrypt from "bcryptjs";
 import { defaultHome } from "../public/home-content.js";
 process.env.NODE_ENV = "test";
+process.env.MEDIA_STORAGE = "postgres";
 if (process.env.TEST_DATABASE_URL)
   process.env.DATABASE_URL = process.env.TEST_DATABASE_URL;
 else delete process.env.DATABASE_URL;

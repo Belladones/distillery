@@ -32,3 +32,11 @@ services:
         value: sandbox
       - key: SHIPPING_CENTS
         value: "690"
+      - key: MEDIA_STORAGE
+        value: cloudinary
+      - key: CLOUDINARY_CLOUD_NAME
+        sync: false
+      - key: CLOUDINARY_API_KEY
+        sync: false
+      - key: CLOUDINARY_API_SECRET
+        sync: false
