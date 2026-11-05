@@ -63,7 +63,21 @@ test("configuration, catalogue et interface sont servis", async () => {
   if (!pool) assert.equal(r.body.length, 3);
   const html = await fetch(base);
   assert.equal(html.status, 200);
-  assert.match(await html.text(), /Notre passion/);
+  assert.match(
+    (await html.text()).replace(/<[^>]+>/g, " ").replace(/\s+/g, " "),
+    /Notre passion/,
+  );
+});
+test("les pages produits sont accessibles directement et les visuels absents ont un remplacement", async () => {
+  for (const path of ["/products", "/products/gin-sauvage"]) {
+    const response = await fetch(base + path);
+    assert.equal(response.status, 200);
+    assert.match(await response.text(), /storefront.js|app.js/);
+  }
+  const image = await fetch(base + "/assets/hero-banner.png");
+  assert.equal(image.status, 200);
+  assert.match(image.headers.get("content-type"), /image\/png/);
+  assert.equal((await fetch(base + "/api/route-inconnue")).status, 404);
 });
 test("les mutations sans CSRF et les accès administrateur sont refusés", async () => {
   assert.equal(

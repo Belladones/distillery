@@ -1,3 +1,9 @@
+import {
+  homeMarkup,
+  catalogMarkup,
+  productMarkup,
+  cards,
+} from "./storefront.js";
 const arrow =
   '<svg class="arrow-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 19 19 5M5 5h14v14"/></svg>';
 const $ = (s) => document.querySelector(s),
@@ -89,31 +95,20 @@ function persist() {
   $("#cart-count").textContent = cart.reduce((s, i) => s + i.quantity, 0);
 }
 function renderProducts() {
-  const list = products.filter(
-    (p) => filter === "all" || p.category.includes(filter),
-  );
-  $("#products-grid").innerHTML = list.length
-    ? list
-        .map(
-          (p, index) =>
-            `<article class="product-card"><button class="product-art" data-product="${p.id}" style="--product-color:${escape(p.color)}" aria-label="Découvrir ${escape(p.name)}"><span class="product-index">0${index + 1} / LES LIBRES</span><span class="badge">${p.stock > 0 ? "PETIT LOT" : "ÉPUISÉ"}</span><img src="${escape(p.image)}" alt="Bouteille ${escape(p.name)}" loading="lazy"></button><div class="product-meta"><span class="product-category">${escape(p.category)}</span><div><button class="product-name" data-product="${p.id}">${escape(p.name)}</button><span class="price">${money(p.price_cents)}</span></div><span class="product-details">${escape(p.volume)} &nbsp; / &nbsp; ${escape(p.abv)} vol.</span></div><button class="add-cart" data-add="${p.id}" ${p.stock <= 0 ? "disabled" : ""}>${p.stock > 0 ? "Ajouter au panier" : "Bientôt de retour"}<span>${arrow}</span></button></article>`,
-        )
-        .join("")
-    : '<p class="empty">Aucun spiritueux dans cette catégorie pour le moment.</p>';
+  const grid = $("#products-grid");
+  if (grid) grid.innerHTML = cards(products);
+  if (location.pathname === "/products")
+    $("#home").innerHTML = catalogMarkup(products, filter);
 }
 function showProduct(id) {
   const p = products.find((p) => p.id === id);
-  if (!p) return;
-  modal(
-    `<div class="product-modal"><div><div class="product-art" style="--product-color:${escape(p.color)}"><img id="gallery-image" src="${escape(p.image)}" alt="${escape(p.name)}"></div>${p.images?.length ? `<div class="gallery-thumbs">${[p.image, ...p.images].map((src, i) => `<button data-gallery="${escape(src)}" aria-label="Vue ${i + 1}"><img src="${escape(src)}" alt="Vue ${i + 1}"></button>`).join("")}</div>` : ""}</div><div><div class="eyebrow">${escape(p.category)}</div><h2>${escape(p.name)}</h2><span>${money(p.price_cents)} <small> / ${escape(p.volume)} · ${escape(p.abv)} vol.</small></span><p>${escape(p.description)}</p><h3>COMPOSITION</h3><p>${escape(p.composition)}</p><h3>LE COCKTAIL DE LA MAISON</h3><p class="cocktail">${escape(p.cocktail)}</p><button class="primary full" data-add="${id}" ${p.stock <= 0 ? "disabled" : ""}>${p.stock > 0 ? "Ajouter au panier — " + money(p.price_cents) : "Épuisé"} <span>↗</span></button></div></div>`,
-    true,
-  );
+  if (p) navigate("/products/" + encodeURIComponent(p.slug));
 }
-async function add(id) {
+async function add(id, count = 1) {
   const p = products.find((p) => p.id === id),
     old = cart.find((i) => i.id === id);
   if (!p) return;
-  const quantity = (old?.quantity || 0) + 1;
+  const quantity = (old?.quantity || 0) + count;
   if (quantity > p.stock || quantity > 99)
     return toast("La quantité disponible est atteinte.");
   try {
@@ -264,7 +259,7 @@ async function renderAccount() {
       $("#account-body").className = "";
       $("#account-body").innerHTML = list.length
         ? list.map((o) => orderHTML(o, adminTab === "admin-orders")).join("")
-        : '<div class="empty">Aucune commande pour le moment.<br><br><a class="text-link" href="#produits">Découvrir la collection ↗</a></div>';
+        : '<div class="empty">Aucune commande pour le moment.<br><br><a class="text-link" href="/products">Découvrir la collection ↗</a></div>';
     }
   } catch (e) {
     $("#account-body").className = "error";
@@ -353,22 +348,95 @@ function legal(type) {
     `<div class="legal"><h2 class="modal-title">${title}</h2>${body}</div>`,
   );
 }
+let carouselTimer,
+  testimonialIndex = 0,
+  carouselPaused = false,
+  pageQuantity = 1;
+function navigate(url) {
+  history.pushState(null, "", url);
+  route();
+}
+function setTestimonial(index) {
+  testimonialIndex = (index + 3) % 3;
+  const track = $(".testimonial__track");
+  if (!track) return;
+  track.style.transform = `translateX(-${testimonialIndex * 100}%)`;
+  $$(".testimonial__panel").forEach((panel, i) =>
+    panel.setAttribute("aria-hidden", String(i !== testimonialIndex)),
+  );
+  $$("[data-testimonial]").forEach((button, i) => {
+    button.classList.toggle("is-active", i === testimonialIndex);
+    button.setAttribute("aria-pressed", String(i === testimonialIndex));
+  });
+  $(".testimonial__counter").textContent = `0${testimonialIndex + 1} / 03`;
+}
+function startCarousel() {
+  clearInterval(carouselTimer);
+  if (
+    !carouselPaused &&
+    !matchMedia("(prefers-reduced-motion: reduce)").matches &&
+    $(".testimonial__track")
+  )
+    carouselTimer = setInterval(() => {
+      if (
+        !document.hidden &&
+        !$(".testimonial")?.matches(":hover,:focus-within") &&
+        !$("#modal").open
+      )
+        setTestimonial(testimonialIndex + 1);
+    }, 6500);
+}
 async function route() {
+  clearInterval(carouselTimer);
   const account = location.hash === "#compte";
   $("#home").hidden = account;
   $("#account-page").hidden = !account;
+  $("#storefront-footer").hidden = account;
+  $("#service-footer").hidden = !account;
+  const isCatalog = location.pathname === "/products";
   $$(".header nav a").forEach((a) =>
-    a.classList.toggle("active", a.hash === (location.hash || "#accueil")),
+    a.classList.toggle(
+      "active",
+      isCatalog || location.pathname.startsWith("/products/")
+        ? a.pathname === "/products"
+        : a.pathname === "/" && a.hash === (location.hash || "#accueil"),
+    ),
   );
   if (account) {
     await renderAccount();
+    document.title = "Mon compte — Antoine Bravar Distillery";
     window.scrollTo(0, 0);
-  } else if (location.hash) {
+    return;
+  }
+  if (isCatalog) {
+    $("#home").innerHTML = catalogMarkup(products, filter);
+    document.title = "Nos Produits — Antoine Bravar Distillery";
+  } else if (location.pathname.startsWith("/products/")) {
+    let slug;
+    try {
+      slug = decodeURIComponent(location.pathname.slice("/products/".length));
+    } catch {
+      slug = "";
+    }
+    const p = products.find((p) => p.slug === slug);
+    pageQuantity = p?.stock > 0 ? 1 : 0;
+    $("#home").innerHTML = productMarkup(p);
+    document.title =
+      (p?.name || "Produit introuvable") + " — Antoine Bravar Distillery";
+  } else {
+    $("#home").innerHTML = homeMarkup();
+    renderProducts();
+    testimonialIndex = 0;
+    carouselPaused = matchMedia("(prefers-reduced-motion: reduce)").matches;
+    startCarousel();
+    document.title = "Antoine Bravar Distillery — L’indépendance distillée";
+  }
+  if (location.hash)
     setTimeout(
       () => document.getElementById(location.hash.slice(1))?.scrollIntoView(),
       0,
     );
-  }
+  else window.scrollTo(0, 0);
 }
 function ageGate() {
   if (localStorage.getItem("libres-adult") === "yes") return;
@@ -401,6 +469,78 @@ $("#menu-button").addEventListener("click", () => {
 document.addEventListener("click", async (e) => {
   const el = e.target.closest("button,a");
   if (!el) return;
+  if (
+    el.tagName === "A" &&
+    el.hasAttribute("href") &&
+    !e.ctrlKey &&
+    !e.metaKey &&
+    !e.shiftKey &&
+    !e.altKey &&
+    !el.target &&
+    !el.hasAttribute("download")
+  ) {
+    const url = new URL(el.href, location.href);
+    if (
+      url.origin === location.origin &&
+      (url.pathname === "/" ||
+        url.pathname === "/products" ||
+        url.pathname.startsWith("/products/"))
+    ) {
+      e.preventDefault();
+      $(".header nav").classList.remove("open");
+      navigate(url.pathname + url.search + url.hash);
+      return;
+    }
+  }
+  if (el.dataset.catalogFilter) {
+    filter = el.dataset.catalogFilter;
+    $("#home").innerHTML = catalogMarkup(products, filter);
+  }
+  if (el.dataset.productStep) {
+    const slug = decodeURIComponent(
+      location.pathname.slice("/products/".length),
+    );
+    const p = products.find((p) => p.slug === slug);
+    const max = Math.min(99, Math.max(0, p?.stock || 0));
+    pageQuantity =
+      max > 0
+        ? Math.min(
+            max,
+            Math.max(1, pageQuantity + Number(el.dataset.productStep)),
+          )
+        : 0;
+    $("#product-quantity").textContent = pageQuantity;
+    $("[data-product-step='-1']").disabled = pageQuantity <= 1;
+    $("[data-product-step='1']").disabled = pageQuantity >= max;
+  }
+  if (el.dataset.productAdd && pageQuantity > 0)
+    await add(Number(el.dataset.productAdd), pageQuantity);
+  if (el.dataset.productImage) {
+    modal(
+      `<img class="enlarged-product-image" src="${escape(el.dataset.productImage)}" alt="Vue agrandie du produit">`,
+      true,
+    );
+  }
+  if (el.dataset.testimonial !== undefined) {
+    setTestimonial(Number(el.dataset.testimonial));
+    startCarousel();
+  }
+  if (el.dataset.testimonialStep) {
+    setTestimonial(testimonialIndex + Number(el.dataset.testimonialStep));
+    startCarousel();
+  }
+  if (el.id === "retry-storefront") location.reload();
+  if (el.id === "testimonial-pause") {
+    carouselPaused = !carouselPaused;
+    el.textContent = carouselPaused ? "Lecture" : "Pause";
+    el.setAttribute(
+      "aria-label",
+      carouselPaused
+        ? "Reprendre les témoignages"
+        : "Mettre les témoignages en pause",
+    );
+    startCarousel();
+  }
   if (el.closest(".header nav")) $(".header nav").classList.remove("open");
   if (el.dataset.gallery && $("#gallery-image"))
     $("#gallery-image").src = el.dataset.gallery;
@@ -416,7 +556,7 @@ document.addEventListener("click", async (e) => {
   if (el.dataset.legal) legal(el.dataset.legal);
   if (el.id === "browse-products") {
     closeModal();
-    location.hash = "produits";
+    navigate("/products");
   }
   if (el.id === "switch-auth")
     showAuth(authMode === "login" ? "register" : "login");
@@ -491,7 +631,21 @@ document.querySelectorAll("a,button,span").forEach((el) => {
     );
 });
 window.addEventListener("hashchange", route);
+window.addEventListener("popstate", route);
+document.addEventListener(
+  "error",
+  (e) => {
+    const image = e.target;
+    if (image instanceof HTMLImageElement && image.dataset.fallback) {
+      const fallback = image.dataset.fallback;
+      delete image.dataset.fallback;
+      image.src = fallback;
+    }
+  },
+  true,
+);
 $("#year").textContent = new Date().getFullYear();
+$(".storefront-year").textContent = new Date().getFullYear();
 try {
   config = await api("/config");
   [products, user] = await Promise.all([api("/products"), api("/me")]);
@@ -531,7 +685,7 @@ try {
   }
   ageGate();
 } catch (e) {
-  $("#products-grid").innerHTML =
-    '<p class="error">Impossible de charger la collection. Vérifiez votre connexion puis rechargez la page.</p>';
+  $("#home").innerHTML =
+    '<section class="empty-state container"><p class="error">Impossible de charger la collection. Vérifiez votre connexion puis rechargez la page.</p><button class="secondary" id="retry-storefront">Réessayer</button></section>';
   toast(e.message);
 }

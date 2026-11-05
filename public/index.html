@@ -6,22 +6,25 @@
     <meta name="theme-color" content="#e9e5da" />
     <meta
       name="description"
-      content="Les Libres, distillerie indépendante. Whiskys, gins et rhums de caractère, élaborés en petits lots."
+      content="Antoine Bravar Distillery, distillerie indépendante. Whiskys, gins et rhums de caractère, élaborés en petits lots."
     />
-    <title>Les Libres — Distillerie indépendante</title>
+    <title>Antoine Bravar Distillery — L’indépendance distillée</title>
     <link rel="stylesheet" href="/style.css" />
+    <link rel="stylesheet" href="/storefront.css" />
     <script type="module" src="/app.js"></script>
   </head>
   <body>
     <header class="header">
-      <a href="#accueil" class="logo" aria-label="Les Libres, accueil"
-        ><span class="logo-mark">LL<span>≋</span></span
-        ><span>LES LIBRES<small>DISTILLERIE INDÉPENDANTE</small></span></a
+      <a
+        href="/#accueil"
+        class="logo"
+        aria-label="Antoine Bravar Distillery, accueil"
+        ><span class="logo-mark">AB<span>≋</span></span
+        ><span>ANTOINE BRAVAR<small>DISTILLERY</small></span></a
       >
       <nav aria-label="Navigation principale">
-        <a href="#accueil">Accueil</a><a href="#histoire">Notre histoire</a
-        ><a href="#produits">Nos spiritueux</a
-        ><a href="#savoir-faire">Savoir-faire</a>
+        <a href="/#accueil">Accueil</a><a href="/#about">À propos</a
+        ><a href="/products">Nos Produits</a><a href="/#contact">Contact</a>
       </nav>
       <div class="header-actions">
         <button class="icon-button" id="account-button" aria-label="Mon compte">
@@ -41,175 +44,293 @@
         </button>
       </div>
     </header>
-    <main id="home">
+    <main id="home" class="storefront">
       <section class="hero" id="accueil">
-        <img
-          class="hero-image"
-          src="/distillery.png"
-          alt="Illustration d’alambics en cuivre dans une distillerie"
-        />
-        <div class="hero-shade"></div>
-        <div class="hero-top">
-          <span><i></i> LIBRES PAR NATURE.</span>
-          <p>
-            Des spiritueux de caractère.<br />Une autre idée de la distillation.
-          </p>
+        <div class="hero__background" aria-hidden="true">
+          <img
+            src="/assets/hero-banner.png"
+            data-fallback="/distillery.png"
+            alt=""
+            fetchpriority="high"
+          />
         </div>
-        <div class="hero-bottom">
-          <div class="eyebrow light">
-            ARTISANAL · INDÉPENDANT · SANS COMPROMIS
+        <div class="hero__intro">
+          <p><span>•</span>Antoine</p>
+          <h1>L’indépendance<br />distillée</h1>
+        </div>
+        <p class="hero__note">
+          L’aventure d’une famille réunie autour d’une même passion.
+        </p>
+        <div class="hero__headline">
+          <div class="hero__headline-line hero__headline-line--first">
+            <span>Notre</span><em>passion</em>
           </div>
-          <h1>
-            Notre passion.<br />Votre <em>liberté.</em
+          <div class="hero__headline-line hero__headline-line--second">
+            <span>Votre</span
             ><a
-              href="#produits"
-              class="round-arrow"
-              aria-label="Découvrir nos spiritueux"
-              >↗</a
-            >
-          </h1>
-          <div class="hero-footer">
-            <span>LE GOÛT DE FAIRE AUTREMENT.</span
-            ><a href="#histoire">DÉFILER POUR DÉCOUVRIR <span>↓</span></a>
+              class="hero__cta"
+              href="/products"
+              aria-label="Voir nos produits"
+              ><svg class="arrow-icon" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M3 12h18m-7-7 7 7-7 7" /></svg></a
+            ><em>perfection</em>
           </div>
         </div>
-        <span class="vertical-note"
-          >DISTILLÉS AVEC CONVICTION, DÉGUSTÉS AVEC ÉMOTION.</span
-        >
       </section>
-      <section class="intro section" id="histoire">
-        <div class="eyebrow"><span class="dot"></span> L’ESPRIT LES LIBRES</div>
-        <div>
-          <h2>Indépendants d’esprit.<br /><em>Artisans par conviction.</em></h2>
-          <p class="intro-copy">
-            Nous croyons aux choses qui ont une âme. À celles qui prennent le
-            temps. Alors nous créons des spiritueux sincères, en petits lots,
-            pour les grandes occasions comme pour les petits instants.
-          </p>
-          <a class="text-link" href="#savoir-faire"
-            >Entrez dans notre univers <span>↗</span></a
+      <section class="about-section container" id="about">
+        <p class="section-kicker">(À propos de nous)</p>
+        <h2>
+          Indépendants, affranchis des traditions et à mille lieues des autres
+          whiskies américains, nous sommes là pour repousser les limites de
+          notre savoir faire.
+        </h2>
+      </section>
+      <section class="craft container" id="savoir-faire">
+        <h2>Notre<br /><em>Savoir Faire</em></h2>
+        <div class="craft__grid">
+          <img
+            class="craft__item craft__item--small"
+            src="/assets/bento1.png"
+            data-fallback="/distillery.png"
+            alt="Verre de spiritueux cuivré"
+            loading="lazy"
+          /><img
+            class="craft__item craft__item--wide"
+            src="/assets/bento4.png"
+            data-fallback="/distillery.png"
+            alt="Bouteilles de distillat artisanal"
+            loading="lazy"
+          /><img
+            class="craft__item craft__item--small"
+            src="/assets/bento3.png"
+            data-fallback="/distillery.png"
+            alt="Fûts de bois dans une cave"
+            loading="lazy"
+          /><img
+            class="craft__item craft__item--large"
+            src="/assets/bento2.png"
+            data-fallback="/distillery.png"
+            alt="Cuve et cuivre en distillerie"
+            loading="lazy"
+          /><img
+            class="craft__item craft__item--square"
+            src="/assets/bento5.png"
+            data-fallback="/distillery.png"
+            alt="Grains de malt"
+            loading="lazy"
+          /><img
+            class="craft__item craft__item--small"
+            src="/assets/bento6.png"
+            data-fallback="/distillery.png"
+            alt="Alambics en cuivre"
+            loading="lazy"
+          />
+        </div>
+      </section>
+      <section class="testimonial" aria-label="Témoignages">
+        <div class="testimonial__viewport">
+          <div class="testimonial__track">
+            <article class="testimonial__panel" aria-hidden="false">
+              <img
+                class="testimonial-photo"
+                src="/assets/temoignage1.png"
+                data-fallback="/distillery.png"
+                alt=""
+                loading="lazy"
+              />
+              <div class="testimonial__content container">
+                <p class="section-kicker">(Témoignages)</p>
+                <blockquote>
+                  “Quand je travaille un cocktail avec ces spiritueux, je sais
+                  que je pars d’un produit vivant, précis et artisanal : il
+                  suffit de l’accompagner, pas de le masquer.”
+                </blockquote>
+                <cite>Quentin Giraud<br /><span>Le Broc, sommelier</span></cite>
+              </div>
+            </article>
+            <article class="testimonial__panel" aria-hidden="true">
+              <img
+                class="testimonial-photo"
+                src="/assets/temoignage2.png"
+                data-fallback="/distillery.png"
+                alt=""
+                loading="lazy"
+              />
+              <div class="testimonial__content container">
+                <p class="section-kicker">(Témoignages)</p>
+                <blockquote>
+                  “On retrouve une vraie signature aromatique : céréale,
+                  fraîcheur, tension et une finale nette. C’est exactement le
+                  genre de bouteille qui donne du caractère à une carte.”
+                </blockquote>
+                <cite
+                  >Camille Morel<br /><span>Cave indépendante, Lyon</span></cite
+                >
+              </div>
+            </article>
+            <article class="testimonial__panel" aria-hidden="true">
+              <img
+                class="testimonial-photo"
+                src="/assets/temoignage3.png"
+                data-fallback="/distillery.png"
+                alt=""
+                loading="lazy"
+              />
+              <div class="testimonial__content container">
+                <p class="section-kicker">(Témoignages)</p>
+                <blockquote>
+                  “Ces spiritueux ont suffisamment de personnalité pour être
+                  dégustés seuls, mais assez d’équilibre pour devenir la colonne
+                  vertébrale d’un cocktail simple et élégant.”
+                </blockquote>
+                <cite>Nora Benali<br /><span>Mixologue, Paris</span></cite>
+              </div>
+            </article>
+          </div>
+        </div>
+        <div class="testimonial__ui container">
+          <div class="testimonial__counter" aria-live="polite">01 / 03</div>
+          <div
+            class="testimonial__controls"
+            aria-label="Navigation des témoignages"
           >
-        </div>
-        <span class="stamp">PETITS LOTS<br /><b>✳</b><br />GRANDS ESPRITS</span>
-      </section>
-      <section class="products-section section" id="produits">
-        <div class="section-top">
-          <div>
-            <div class="eyebrow"><span class="dot"></span> LA COLLECTION</div>
-            <h2>Des esprits <em>libres.</em></h2>
+            <button
+              type="button"
+              data-testimonial-step="-1"
+              aria-label="Témoignage précédent"
+            >
+              <span class="reverse-arrow"
+                ><svg class="arrow-icon" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M3 12h18m-7-7 7 7-7 7" /></svg
+              ></span>
+            </button>
+            <div
+              class="testimonial__dots"
+              role="group"
+              aria-label="Choisir un témoignage"
+            >
+              <button
+                type="button"
+                data-testimonial="0"
+                class="is-active"
+                aria-label="Voir le témoignage de Quentin Giraud"
+                aria-pressed="true"
+              ></button
+              ><button
+                type="button"
+                data-testimonial="1"
+                class=""
+                aria-label="Voir le témoignage de Camille Morel"
+                aria-pressed="false"
+              ></button
+              ><button
+                type="button"
+                data-testimonial="2"
+                class=""
+                aria-label="Voir le témoignage de Nora Benali"
+                aria-pressed="false"
+              ></button>
+            </div>
+            <button
+              type="button"
+              data-testimonial-step="1"
+              aria-label="Témoignage suivant"
+            >
+              <svg class="arrow-icon" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M3 12h18m-7-7 7 7-7 7" />
+              </svg></button
+            ><button
+              type="button"
+              class="testimonial-pause"
+              id="testimonial-pause"
+              aria-label="Mettre les témoignages en pause"
+            >
+              Pause
+            </button>
           </div>
-          <p>
-            Trois caractères. Une même exigence.<br />Trouvez celui qui vous
-            ressemble.
-          </p>
         </div>
-        <div
-          class="product-filters"
-          role="group"
-          aria-label="Filtrer les spiritueux"
-        >
-          <button class="active" data-filter="all">
-            Tous les spiritueux <span>03</span></button
-          ><button data-filter="WHISKY">Whisky</button
-          ><button data-filter="GIN">Gin</button
-          ><button data-filter="RHUM">Rhum</button>
+      </section>
+      <section class="products-home container">
+        <div class="products-home__brand">
+          <span class="brand-lockup"
+            ><span>ANTOINE<br />BRAVAR<br /><small>DISTILLERY</small></span
+            ><svg
+              class="brand-barrel"
+              viewBox="0 0 60 70"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              aria-hidden="true"
+            >
+              <path
+                d="M10 5h40q12 30 0 60H10Q-2 35 10 5Zm-3 12h46M5 29h50M5 41h50M7 53h46M20 5q-9 30 0 60M30 5v60M40 5q9 30 0 60"
+              /></svg
+          ></span>
         </div>
-        <div id="products-grid" class="products-grid">
-          <p>Chargement de la collection…</p>
+        <h2>Nos Produits</h2>
+        <div class="products-home__list" id="products-grid">
+          <p>Chargement des produits…</p>
         </div>
-        <div class="collection-foot">
-          <span>ÉLABORÉS AVEC SOIN. PARTAGÉS AVEC PLAISIR.</span
-          ><span>Livraison en France métropolitaine ↗</span>
-        </div>
+        <a class="collection-link" href="/products"
+          >Voir toute la collection
+          <svg class="arrow-icon" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M3 12h18m-7-7 7 7-7 7" /></svg
+        ></a>
       </section>
       <div class="marquee" aria-hidden="true">
-        L’esprit libre. Le goût vrai. <span>✳</span> L’esprit libre. Le goût
-        vrai. <span>✳</span> L’esprit libre. Le goût vrai.
+        <span
+          >✦ Whisky disponible prochainement · Whisky disponible prochainement ·
+          Whisky disponible prochainement</span
+        >
       </div>
-      <section class="craft section" id="savoir-faire">
-        <div class="craft-image">
-          <img
-            src="/distillery.png"
-            alt="Détail des alambics en cuivre, illustration de notre savoir-faire"
-            loading="lazy"
-          /><span class="image-label">DU TEMPS. DU SENS. DU CARACTÈRE.</span>
-        </div>
-        <div class="craft-copy">
-          <div class="eyebrow">
-            <span class="dot"></span> NOTRE SAVOIR-FAIRE
-          </div>
-          <h2>Les bonnes choses<br />prennent <em>le temps.</em></h2>
-          <p>
-            Choisir les matières premières. Trouver l’équilibre. Laisser le
-            temps faire son œuvre. De la première idée à la dernière goutte,
-            chaque détail compte.
-          </p>
-          <div class="craft-feature">
-            <span>01</span>
-            <div>
-              <h3>Des ingrédients choisis</h3>
-              <p>La qualité commence bien avant l’alambic.</p>
-            </div>
-            <span>↗</span>
-          </div>
-          <div class="craft-feature">
-            <span>02</span>
-            <div>
-              <h3>Le geste artisanal</h3>
-              <p>De petites séries, une attention entière.</p>
-            </div>
-            <span>↗</span>
-          </div>
-          <div class="craft-feature">
-            <span>03</span>
-            <div>
-              <h3>Le plaisir du partage</h3>
-              <p>Des spiritueux à raconter et à découvrir.</p>
-            </div>
-            <span>↗</span>
-          </div>
-        </div>
-      </section>
-      <section class="quote-section">
-        <img
-          src="/distillery.png"
-          alt="Atmosphère de distillerie, illustration"
-          loading="lazy"
-        />
-        <div class="quote-content">
-          <div class="eyebrow light">LE GOÛT DES INSTANTS PARTAGÉS</div>
-          <blockquote>
-            « Un bon spiritueux a une histoire.<br />Le meilleur, c’est celui
-            qu’on<br /><em>écrit ensemble.</em> »
-          </blockquote>
-          <a href="#produits" class="text-link"
-            >Trouvez votre prochain coup de cœur <span>↗</span></a
-          >
-        </div>
-      </section>
-      <section class="service-strip">
-        <div>
-          <span>↗</span>
-          <p>Livraison soignée<small>En France métropolitaine</small></p>
-        </div>
-        <div>
-          <span>◇</span>
-          <p>Paiement sécurisé<small>Carte bancaire & PayPal</small></p>
-        </div>
-        <div>
-          <span>✳</span>
-          <p>
-            Une question ?<small
-              ><a href="mailto:bonjour@leslibres.fr">Écrivez-nous</a></small
-            >
-          </p>
-        </div>
-      </section>
     </main>
     <section id="account-page" class="account-page section" hidden></section>
-    <footer>
+    <div id="storefront-footer" class="storefront">
+      <footer class="site-footer" id="contact">
+        <div class="footer__claim">
+          Micro-distillerie indépendante en circuit court,<br />dédiée aux
+          spiritueux en éditions limitées.
+        </div>
+        <div class="footer__grid">
+          <div class="footer__socials">
+            <a href="/products">→ Nos Produits</a
+            ><a href="/#about">→ À propos</a>
+          </div>
+          <a
+            href="/"
+            class="footer-brand"
+            aria-label="Accueil Antoine Bravar Distillery"
+            >ANTOINE<br />BRAVAR<br /><small>DISTILLERY</small></a
+          >
+          <div class="newsletter">
+            <a class="footer__mail" href="mailto:antoinedistillery@gmail.com"
+              >antoinedistillery@gmail.com</a
+            >
+            <p>Restez au cœur de la distillerie</p>
+            <a class="footer-write" href="mailto:antoinedistillery@gmail.com"
+              >Écrivez-nous →</a
+            >
+          </div>
+        </div>
+        <div class="storefront-footer-legal">
+          <small
+            >© <span class="storefront-year"></span> Tous droits réservés</small
+          >
+          <div>
+            <button data-legal="mentions">Mentions légales</button
+            ><button data-legal="conditions">CGV & livraison</button
+            ><button data-legal="confidentialite">Confidentialité</button>
+          </div>
+          <small
+            >L’abus d’alcool est dangereux pour la santé. À consommer avec
+            modération.</small
+          >
+        </div>
+      </footer>
+    </div>
+    <footer id="service-footer" hidden>
       <div class="footer-top">
-        <a href="#accueil" class="footer-logo"
+        <a href="/#accueil" class="footer-logo"
           >Les Libres<span>DISTILLERIE INDÉPENDANTE</span></a
         >
         <h2>

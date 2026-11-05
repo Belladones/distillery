@@ -65,3 +65,9 @@ Le test d’intégration PostgreSQL est activé avec `TEST_DATABASE_URL` pointan
 ## Avant ouverture commerciale
 
 Cette version est un socle de développement, pas une validation juridique ou une boutique déjà exploitée. Remplacer la marque, les images génériques, le catalogue et les coordonnées de démonstration. Compléter et faire valider les mentions légales, CGV, rétractation, garanties, médiation, politique de confidentialité, informations produits (allergènes, origine, etc.), licences de vente d’alcool, obligations fiscales et contrôle de majorité approprié à votre activité. L’écran de majorité et la case à cocher ne constituent pas une vérification d’identité. Ajouter une procédure opérationnelle de remboursement/réconciliation et tester toute la chaîne de commande en Sandbox avant passage en production.
+
+## Présentation de l’accueil et des produits
+
+Le design des composants TSX fournis a été adapté dans `public/storefront.js` et `public/storefront.css`, sans remplacer les comptes, le panier, les paiements ou l’administration. Les routes `/products` et `/products/:slug` sont accessibles directement et au rechargement. Les contenus commerciaux restent ceux du catalogue PostgreSQL. Les styles sont limités au conteneur `.storefront`. Work Sans et Playfair Display sont hébergées localement.
+
+Les photographies et `Logo.svg` importés dans les composants n’étaient pas joints. Consulter `public/assets/README.md` pour les noms des fichiers à ajouter. En attendant, les emplacements photo utilisent l’illustration existante et le logo est composé en texte. Les témoignages reprennent les contenus fournis ; les faire confirmer avant publication commerciale. Aucun formulaire de newsletter fictif n’a été ajouté : le pied de page propose le contact email fourni.

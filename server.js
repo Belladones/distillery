@@ -748,6 +748,22 @@ app.get("/api/health", async (req, res) => {
   res.json({ ok: true, database: !!pool });
 });
 app.use(express.static(fileURLToPath(new URL("./public", import.meta.url))));
+// Uploaded page components refer to these photos. Real files in public/assets
+// take precedence; use the current illustration until those assets are supplied.
+const presentationAssets = new Set([
+  "hero-banner.png",
+  ...Array.from({ length: 6 }, (_, i) => `bento${i + 1}.png`),
+  ...Array.from({ length: 3 }, (_, i) => `temoignage${i + 1}.png`),
+]);
+app.get("/assets/:name", (req, res, next) => {
+  if (!presentationAssets.has(req.params.name)) return next();
+  res.sendFile(
+    fileURLToPath(new URL("./public/distillery.png", import.meta.url)),
+  );
+});
+app.get(["/products", "/products/:slug"], (req, res) => {
+  res.sendFile(fileURLToPath(new URL("./public/index.html", import.meta.url)));
+});
 app.use("/api", (req, res) =>
   res.status(404).json({ error: "Route inconnue" }),
 );
