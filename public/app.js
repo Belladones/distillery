@@ -1,5 +1,14 @@
+import { defaultHome } from "./home-content.js";
+import {
+  imageField,
+  galleryField,
+  attachMediaUploads,
+  renderHomeEditor,
+  renderMediaLibrary,
+} from "./admin-content.js";
 import {
   homeMarkup,
+  footerMarkup,
   catalogMarkup,
   productMarkup,
   cards,
@@ -20,6 +29,15 @@ const money = (n) =>
   new Intl.NumberFormat("fr-FR", { style: "currency", currency: "EUR" }).format(
     n / 100,
   );
+let homeContent = structuredClone(defaultHome);
+const initialHeaderLogo =
+  '<span class="logo-mark">AB<span>≋</span></span><span>ANTOINE BRAVAR<small>DISTILLERY</small></span>';
+function updateHeaderLogo() {
+  const logo = document.querySelector(".header .logo");
+  logo.innerHTML = homeContent.branding?.logo
+    ? `<img class="header-brand-image" src="${escape(homeContent.branding.logo)}" alt="${escape(homeContent.branding.logoAlt)}">`
+    : initialHeaderLogo;
+}
 let config,
   products = [],
   user = null,
@@ -42,14 +60,19 @@ try {
   cart = [];
 }
 async function api(path, options = {}) {
+  const multipart = options.body instanceof FormData;
   const response = await fetch("/api" + path, {
     ...options,
     headers: {
-      "Content-Type": "application/json",
+      ...(!multipart ? { "Content-Type": "application/json" } : {}),
       "X-CSRF-Token": config?.csrf || "",
       ...options.headers,
     },
-    body: options.body ? JSON.stringify(options.body) : undefined,
+    body: multipart
+      ? options.body
+      : options.body
+        ? JSON.stringify(options.body)
+        : undefined,
   });
   const data = await response.json();
   if (!response.ok) throw new Error(data.error || "Erreur réseau");
@@ -80,6 +103,8 @@ function errorIn(form, e) {
   el.textContent = e.message;
 }
 async function submit(form, fn) {
+  if (Number(form.dataset.uploading))
+    return errorIn(form, new Error("Attendez la fin de l’import des images."));
   const button = form.querySelector("button[type=submit]");
   if (button) button.disabled = true;
   try {
@@ -242,9 +267,24 @@ async function renderAccount() {
     showAuth();
     return;
   }
-  el.innerHTML = `<div class="account-heading"><div><div class="eyebrow">VOTRE ESPACE PERSONNEL</div><h1>Bonjour, ${escape(user.name)}.</h1><p>${escape(user.email)} · Votre panier et vos commandes, au même endroit.</p></div><button id="logout" class="secondary">Se déconnecter ↗</button></div><div class="tabs"><button data-account-tab="orders" class="${adminTab === "orders" ? "active" : ""}">Mes commandes</button>${user.role === "admin" ? `<button data-account-tab="admin-orders" class="${adminTab === "admin-orders" ? "active" : ""}">Toutes les commandes</button><button data-account-tab="admin-products" class="${adminTab === "admin-products" ? "active" : ""}">Produits & stocks</button>` : ""}</div><div id="account-body" class="loader">Chargement…</div>`;
+  el.innerHTML = `<div class="account-heading"><div><div class="eyebrow">VOTRE ESPACE PERSONNEL</div><h1>Bonjour, ${escape(user.name)}.</h1><p>${escape(user.email)} · Votre panier et vos commandes, au même endroit.</p></div><button id="logout" class="secondary">Se déconnecter ↗</button></div><div class="tabs"><button data-account-tab="orders" class="${adminTab === "orders" ? "active" : ""}">Mes commandes</button>${user.role === "admin" ? `<button data-account-tab="admin-orders" class="${adminTab === "admin-orders" ? "active" : ""}">Toutes les commandes</button><button data-account-tab="admin-products" class="${adminTab === "admin-products" ? "active" : ""}">Produits & stocks</button><button data-account-tab="admin-home" class="${adminTab === "admin-home" ? "active" : ""}">Page d’accueil</button><button data-account-tab="admin-media" class="${adminTab === "admin-media" ? "active" : ""}">Médiathèque</button>` : ""}</div><div id="account-body" class="loader">Chargement…</div>`;
   try {
-    if (adminTab === "admin-products" && user.role === "admin") {
+    if (adminTab === "admin-home" && user.role === "admin") {
+      $("#account-body").className = "";
+      await renderHomeEditor($("#account-body"), {
+        api,
+        toast,
+        getProducts: () => products,
+        onPublished: (content) => {
+          homeContent = content;
+          updateHeaderLogo();
+          $("#storefront-footer").innerHTML = footerMarkup(homeContent);
+        },
+      });
+    } else if (adminTab === "admin-media" && user.role === "admin") {
+      $("#account-body").className = "";
+      await renderMediaLibrary($("#account-body"), { api, toast });
+    } else if (adminTab === "admin-products" && user.role === "admin") {
       const list = await api("/admin/products");
       $("#account-body").className = "";
       $("#account-body").innerHTML =
@@ -278,7 +318,7 @@ function editProduct(id) {
   const field = (key, label, type = "text") =>
     `<label>${label}<input type="${type}" name="${key}" value="${escape(p[key] ?? "")}" ${type === "number" ? 'min="0" step="1"' : ""} required></label>`;
   modal(
-    `<div class="eyebrow">ADMINISTRATION</div><h2 class="modal-title">${id ? "Modifier le produit" : "Un nouvel esprit."}</h2><form id="product-form" class="form"><div class="form-grid">${field("name", "Nom")}${field("slug", "Identifiant URL (lettres, chiffres, tirets)")}${field("category", "Catégorie")}${field("price_cents", "Prix TTC en centimes (5900 = 59 €)", "number")}${field("volume", "Contenance")}${field("abv", "Degré d’alcool")}${field("stock", "Quantité disponible", "number")}${field("color", "Couleur du fond", "color")}<label class="span2">Image de présentation (URL HTTPS ou chemin local)<input name="image" value="${escape(p.image)}" required></label><label class="span2">Galerie complémentaire (8 URL maximum, une par ligne)<textarea name="images">${escape((p.images || []).join("\n"))}</textarea></label>${["description", "composition", "cocktail"].map((k) => `<label class="span2">${{ description: "Description", composition: "Composition", cocktail: "Recette de cocktail" }[k]}<textarea name="${k}" required>${escape(p[k] || "")}</textarea></label>`).join("")}</div><label class="check"><input type="checkbox" name="active" ${p.active ? "checked" : ""}> Visible dans la boutique</label><button type="submit" class="primary">Enregistrer le produit ↗</button></form>`,
+    `<div class="eyebrow">ADMINISTRATION</div><h2 class="modal-title">${id ? "Modifier le produit" : "Un nouvel esprit."}</h2><form id="product-form" class="form"><div class="form-grid">${field("name", "Nom")}${field("slug", "Identifiant URL (lettres, chiffres, tirets)")}${field("category", "Catégorie")}${field("price_cents", "Prix TTC en centimes (5900 = 59 €)", "number")}${field("volume", "Contenance")}${field("abv", "Degré d’alcool")}${field("stock", "Quantité disponible", "number")}${field("color", "Couleur du fond", "color")}<div class="span2">${imageField("image", "Image principale", p.image)}</div><div class="span2">${galleryField(p.images || [])}</div>${["description", "composition", "cocktail"].map((k) => `<label class="span2">${{ description: "Description", composition: "Composition", cocktail: "Recette de cocktail" }[k]}<textarea name="${k}" required>${escape(p[k] || "")}</textarea></label>`).join("")}</div><label class="check"><input type="checkbox" name="active" ${p.active ? "checked" : ""}> Visible dans la boutique</label><button type="submit" class="primary">Enregistrer le produit ↗</button></form>`,
     true,
   );
   $("#product-form").addEventListener("submit", (e) => {
@@ -352,12 +392,29 @@ let carouselTimer,
   testimonialIndex = 0,
   carouselPaused = false,
   pageQuantity = 1;
+function canLeaveHome() {
+  return (
+    $("#home-form")?.dataset.dirty !== "true" ||
+    window.confirm(
+      "Les modifications de l’accueil ne sont pas publiées. Voulez-vous quitter cet écran ?",
+    )
+  );
+}
+window.addEventListener("beforeunload", (event) => {
+  if ($("#home-form")?.dataset.dirty === "true") {
+    event.preventDefault();
+    event.returnValue = "";
+  }
+});
 function navigate(url) {
+  if (!canLeaveHome()) return;
   history.pushState(null, "", url);
   route();
 }
 function setTestimonial(index) {
-  testimonialIndex = (index + 3) % 3;
+  const total = $$("#home .testimonial__panel").length;
+  if (!total) return;
+  testimonialIndex = (index + total) % total;
   const track = $(".testimonial__track");
   if (!track) return;
   track.style.transform = `translateX(-${testimonialIndex * 100}%)`;
@@ -368,7 +425,8 @@ function setTestimonial(index) {
     button.classList.toggle("is-active", i === testimonialIndex);
     button.setAttribute("aria-pressed", String(i === testimonialIndex));
   });
-  $(".testimonial__counter").textContent = `0${testimonialIndex + 1} / 03`;
+  $(".testimonial__counter").textContent =
+    `${String(testimonialIndex + 1).padStart(2, "0")} / ${String(total).padStart(2, "0")}`;
 }
 function startCarousel() {
   clearInterval(carouselTimer);
@@ -392,6 +450,10 @@ async function route() {
   $("#home").hidden = account;
   $("#account-page").hidden = !account;
   $("#storefront-footer").hidden = account;
+  if (!account) $("#storefront-footer").innerHTML = footerMarkup(homeContent);
+  $$('.header nav a[href="/#about"]').forEach(
+    (a) => (a.hidden = !homeContent.about.enabled),
+  );
   $("#service-footer").hidden = !account;
   const isCatalog = location.pathname === "/products";
   $$(".header nav a").forEach((a) =>
@@ -424,12 +486,14 @@ async function route() {
     document.title =
       (p?.name || "Produit introuvable") + " — Antoine Bravar Distillery";
   } else {
-    $("#home").innerHTML = homeMarkup();
+    $("#home").innerHTML = homeMarkup(homeContent);
     renderProducts();
     testimonialIndex = 0;
     carouselPaused = matchMedia("(prefers-reduced-motion: reduce)").matches;
     startCarousel();
-    document.title = "Antoine Bravar Distillery — L’indépendance distillée";
+    document.title = homeContent.seo.title;
+    document.querySelector('meta[name="description"]').content =
+      homeContent.seo.description;
   }
   if (location.hash)
     setTimeout(
@@ -562,6 +626,7 @@ document.addEventListener("click", async (e) => {
     showAuth(authMode === "login" ? "register" : "login");
   if (el.id === "checkout-button") showCheckout();
   if (el.id === "logout") {
+    if (!canLeaveHome()) return;
     try {
       await api("/logout", { method: "POST" });
       user = null;
@@ -575,6 +640,7 @@ document.addEventListener("click", async (e) => {
     }
   }
   if (el.dataset.accountTab) {
+    if (!canLeaveHome()) return;
     adminTab = el.dataset.accountTab;
     await renderAccount();
   }
@@ -644,11 +710,21 @@ document.addEventListener(
   },
   true,
 );
+attachMediaUploads({ api });
 $("#year").textContent = new Date().getFullYear();
-$(".storefront-year").textContent = new Date().getFullYear();
+$$(".storefront-year").forEach(
+  (el) => (el.textContent = new Date().getFullYear()),
+);
 try {
   config = await api("/config");
-  [products, user] = await Promise.all([api("/products"), api("/me")]);
+  let homeRow;
+  [products, user, homeRow] = await Promise.all([
+    api("/products"),
+    api("/me"),
+    api("/home"),
+  ]);
+  homeContent = homeRow.content;
+  updateHeaderLogo();
   if (user)
     cart = (await api("/cart")).map((p) => ({
       id: p.id,

@@ -33,3 +33,25 @@ test("une fiche conserve la composition et la recette du produit, sans recette g
   assert.ok(!html.includes("White Highball"));
   assert.match(productMarkup(null), /Produit introuvable/);
 });
+
+test("les sections masquées disparaissent et les textes de l’accueil restent du texte", async () => {
+  const { defaultHome, validateHome } =
+    await import("../public/home-content.js");
+  const { homeMarkup } = await import("../public/storefront.js");
+  const content = structuredClone(defaultHome);
+  content.about.enabled = false;
+  content.testimonials.enabled = false;
+  content.hero.name = "<img src=x onerror=alert(1)>";
+  const valid = validateHome(content),
+    html = homeMarkup(valid);
+  assert.ok(!html.includes('id="about"'));
+  assert.ok(!html.includes('class="testimonial"'));
+  assert.ok(!html.includes("<img src=x"));
+  assert.match(html, /&lt;img src=x/);
+  assert.throws(() =>
+    validateHome({
+      ...content,
+      hero: { ...content.hero, image: "javascript:alert(1)" },
+    }),
+  );
+});

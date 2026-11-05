@@ -22,14 +22,14 @@ La migration est réexécutable : elle crée les tables et insère trois produit
 
 ## Administrateur
 
-Définir `ADMIN_EMAIL` et `ADMIN_PASSWORD` (12 caractères minimum) de façon sécurisée dans le processus, puis `npm run admin:create`. Ce script crée le compte ou réinitialise son mot de passe et lui attribue le rôle admin. Retirer ensuite ces deux variables. Aucun identifiant par défaut. Se connecter via l’icône compte pour accéder à **Toutes les commandes** et **Produits & stocks**. Une image principale et jusqu’à huit images de galerie sont disponibles par produit. Les images sont des URL HTTPS (par exemple Cloudinary/S3) ou des fichiers statiques ajoutés à `public/` ; pas d’upload intégré.
+Définir `ADMIN_EMAIL` et `ADMIN_PASSWORD` (12 caractères minimum) de façon sécurisée dans le processus, puis `npm run admin:create`. Ce script crée le compte ou réinitialise son mot de passe et lui attribue le rôle admin. Retirer ensuite ces deux variables. Aucun identifiant par défaut. Se connecter via l’icône compte pour accéder à **Toutes les commandes** et **Produits & stocks**. Une image principale et jusqu’à huit images de galerie sont disponibles par produit. Chaque champ image propose un import direct depuis l’ordinateur ou le téléphone. Les URL HTTPS et les fichiers statiques restent utilisables. Les onglets **Page d’accueil** et **Médiathèque** permettent de personnaliser le site et de gérer les images.
 
 Les commandes payées peuvent être marquées expédiées avec le lien HTTPS du transporteur. Le client retrouve ce lien dans son compte. Aucun contrat transporteur ni achat d’étiquette automatique.
 
 ## Render + Neon
 
-1. Créer une base PostgreSQL Neon, copier sa chaîne de connexion, avec TLS (`sslmode=require`).
-2. Pousser ce dépôt dans votre GitHub puis créer un Blueprint Render à partir de `render.yaml`. Le plan Starter permet le hook `preDeployCommand` de migration. Pour un autre plan, exécuter la migration séparément avant le premier démarrage.
+1. Créer une base PostgreSQL Neon, copier sa chaîne de connexion, avec TLS (`sslmode=verify-full`).
+2. Pousser ce dépôt dans votre GitHub puis créer un Blueprint Render à partir de `render.yaml`. Le plan Starter permet le hook `preDeployCommand` de migration. Sans hook de pré-déploiement ni accès Shell, utiliser `npm run db:migrate && npm start` comme Start Command.
 3. Renseigner `DATABASE_URL` avec la connexion Neon, `BASE_URL` avec l’URL HTTPS Render sans slash final, et les clés de paiement. Render génère `SESSION_SECRET`. Ne jamais versionner les secrets.
 4. Déployer ; le build utilise `npm ci --omit=dev`, la migration prépare PostgreSQL et `npm start` lance le serveur sur `PORT`. `/api/health` vérifie la connexion SQL.
 5. Créer l’administrateur depuis un shell sécurisé avec `npm run admin:create`.
@@ -70,4 +70,16 @@ Cette version est un socle de développement, pas une validation juridique ou un
 
 Le design des composants TSX fournis a été adapté dans `public/storefront.js` et `public/storefront.css`, sans remplacer les comptes, le panier, les paiements ou l’administration. Les routes `/products` et `/products/:slug` sont accessibles directement et au rechargement. Les contenus commerciaux restent ceux du catalogue PostgreSQL. Les styles sont limités au conteneur `.storefront`. Work Sans et Playfair Display sont hébergées localement.
 
-Les photographies et `Logo.svg` importés dans les composants n’étaient pas joints. Consulter `public/assets/README.md` pour les noms des fichiers à ajouter. En attendant, les emplacements photo utilisent l’illustration existante et le logo est composé en texte. Les témoignages reprennent les contenus fournis ; les faire confirmer avant publication commerciale. Aucun formulaire de newsletter fictif n’a été ajouté : le pied de page propose le contact email fourni.
+Les visuels initiaux non joints utilisent une illustration de remplacement. Les administrateurs peuvent désormais importer leurs photos et un logo raster depuis **Page d’accueil**, sans modifier le dépôt. Les fichiers statiques décrits dans `public/assets/README.md` restent un autre moyen de fournir les visuels initiaux. Les témoignages reprennent les contenus fournis ; les faire confirmer avant publication commerciale. Aucun formulaire de newsletter fictif n’a été ajouté : le pied de page propose le contact email fourni.
+
+## Upload des images et personnalisation de l’accueil
+
+Après déploiement de cette version, exécuter la migration réexécutable `npm run db:migrate`. Sur Render sans Shell, conserver la **Start Command** `npm run db:migrate && npm start` : elle crée les tables `media` et `site_content` sans supprimer le catalogue ni écraser le contenu déjà publié. Aucun disque persistant Render ni compte de stockage externe n’est requis.
+
+- **Produits & stocks → Modifier / Ajouter** : importer l’image principale et jusqu’à huit photos de galerie. L’import remplit les champs et affiche un aperçu ; cliquer ensuite sur **Enregistrer le produit**.
+- **Page d’accueil** : modifier le logo (facultatif), la bannière, les titres, le texte À propos, les six photos et descriptions du savoir-faire, les trois témoignages, la signature de marque, la collection, le bandeau, le pied de page et les métadonnées SEO. Les principales sections peuvent être masquées. **Prévisualiser** ouvre un aperçu sans publication. **Enregistrer et publier** rend les changements visibles dès le prochain chargement public, y compris dans le HTML de l’accueil. Une version concurrente n’est jamais écrasée silencieusement.
+- **Médiathèque** : importer des photos, copier leurs liens pour les réutiliser et supprimer les images inutilisées. Une image encore référencée dans un produit ou un contenu publié ne peut pas être supprimée. Les imports non enregistrés dans un formulaire restent dans la médiathèque.
+
+Formats acceptés : JPG, PNG, WebP, AVIF fixes ; 8 Mo et 36 mégapixels maximum par fichier. Le serveur vérifie le contenu, corrige l’orientation, réduit les dimensions à 2400 × 2400 maximum, supprime les métadonnées et convertit en WebP. SVG et fichiers animés ne sont pas acceptés à l’import. Les fichiers identiques après optimisation sont dédupliqués. Les routes d’upload sont réservées aux administrateurs et protégées par session et CSRF.
+
+Les images optimisées sont enregistrées dans PostgreSQL (`BYTEA`) et servies sur `/media/:id`, avec cache HTTP et ETag. Elles sont **publiques** dès leur import : ne pas y mettre de documents privés. Elles survivent aux redéploiements Render ; leur stockage et leurs sauvegardes utilisent l’espace et les limites de la base Neon. Pour un gros volume de médias, prévoir une migration vers un stockage objet.

@@ -1,5 +1,6 @@
 import { pool, schema } from "../db.js";
 import { products } from "../data.js";
+import { defaultHome } from "../public/home-content.js";
 if (!pool) throw new Error("DATABASE_URL est nécessaire.");
 await pool.query(schema);
 for (const p of products) {
@@ -10,5 +11,9 @@ for (const p of products) {
     Object.values(row),
   );
 }
-console.log("Schéma et catalogue initial prêts.");
+await pool.query(
+  "INSERT INTO site_content(key,content) VALUES('home',$1) ON CONFLICT(key) DO NOTHING",
+  [JSON.stringify(defaultHome)],
+);
+console.log("Schéma, catalogue et contenu de l’accueil prêts.");
 await pool.end();

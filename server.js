@@ -8,6 +8,7 @@ import bcrypt from "bcryptjs";
 import Stripe from "stripe";
 import crypto from "node:crypto";
 import { pool } from "./db.js";
+import { registerContentRoutes } from "./content-media.js";
 import { products } from "./data.js";
 import { fileURLToPath } from "node:url";
 const app = express(),
@@ -245,6 +246,7 @@ const admin = (req, res, next) =>
   req.session.user?.role === "admin"
     ? next()
     : next(fail("Accès administrateur requis.", 403));
+registerContentRoutes(app, { pool, db, auth, admin, fail });
 const safe = (u) => ({ id: u.id, email: u.email, name: u.name, role: u.role });
 app.get("/api/config", (req, res) => {
   req.session.csrf ||= crypto.randomBytes(32).toString("hex");

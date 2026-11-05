@@ -1,3 +1,4 @@
+import { defaultHome } from "./home-content.js";
 // Presentation adapted from the supplied HomePage, ProductsPage and ProductDetailPage.
 // All commercial information remains sourced from the existing PostgreSQL catalogue.
 export const escape = (value) =>
@@ -17,29 +18,7 @@ export const rightArrow =
 const barrel =
   '<svg class="brand-barrel" viewBox="0 0 60 70" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M10 5h40q12 30 0 60H10Q-2 35 10 5Zm-3 12h46M5 29h50M5 41h50M7 53h46M20 5q-9 30 0 60M30 5v60M40 5q9 30 0 60"/></svg>';
 export const brand = `<span class="brand-lockup"><span>ANTOINE<br>BRAVAR<br><small>DISTILLERY</small></span>${barrel}</span>`;
-export const testimonials = [
-  {
-    quote:
-      "Quand je travaille un cocktail avec ces spiritueux, je sais que je pars d’un produit vivant, précis et artisanal : il suffit de l’accompagner, pas de le masquer.",
-    author: "Quentin Giraud",
-    role: "Le Broc, sommelier",
-    image: "temoignage1.png",
-  },
-  {
-    quote:
-      "On retrouve une vraie signature aromatique : céréale, fraîcheur, tension et une finale nette. C’est exactement le genre de bouteille qui donne du caractère à une carte.",
-    author: "Camille Morel",
-    role: "Cave indépendante, Lyon",
-    image: "temoignage2.png",
-  },
-  {
-    quote:
-      "Ces spiritueux ont suffisamment de personnalité pour être dégustés seuls, mais assez d’équilibre pour devenir la colonne vertébrale d’un cocktail simple et élégant.",
-    author: "Nora Benali",
-    role: "Mixologue, Paris",
-    image: "temoignage3.png",
-  },
-];
+export const testimonials = defaultHome.testimonials.items;
 export const asset = (name, alt, classes = "", extra = "") =>
   `<img class="${classes}" src="/assets/${escape(name)}" data-fallback="/distillery.png" alt="${escape(alt)}" loading="lazy" ${extra}>`;
 export function productCard(p, index = 0) {
@@ -52,12 +31,30 @@ export function cards(products) {
     '<p class="empty">Aucun produit disponible pour le moment.</p>'
   );
 }
-export function homeMarkup() {
-  return `<section class="hero" id="accueil"><div class="hero__background" aria-hidden="true"><img src="/assets/hero-banner.png" data-fallback="/distillery.png" alt="" fetchpriority="high"></div><div class="hero__intro"><p><span>•</span>Antoine</p><h1>L’indépendance<br>distillée</h1></div><p class="hero__note">L’aventure d’une famille réunie autour d’une même passion.</p><div class="hero__headline"><div class="hero__headline-line hero__headline-line--first"><span>Notre</span><em>passion</em></div><div class="hero__headline-line hero__headline-line--second"><span>Votre</span><a class="hero__cta" href="/products" aria-label="Voir nos produits">${rightArrow}</a><em>perfection</em></div></div></section>
-<section class="about-section container" id="about"><p class="section-kicker">(À propos de nous)</p><h2>Indépendants, affranchis des traditions et à mille lieues des autres whiskies américains, nous sommes là pour repousser les limites de notre savoir faire.</h2></section>
-<section class="craft container" id="savoir-faire"><h2>Notre<br><em>Savoir Faire</em></h2><div class="craft__grid">${asset("bento1.png", "Verre de spiritueux cuivré", "craft__item craft__item--small")}${asset("bento4.png", "Bouteilles de distillat artisanal", "craft__item craft__item--wide")}${asset("bento3.png", "Fûts de bois dans une cave", "craft__item craft__item--small")}${asset("bento2.png", "Cuve et cuivre en distillerie", "craft__item craft__item--large")}${asset("bento5.png", "Grains de malt", "craft__item craft__item--square")}${asset("bento6.png", "Alambics en cuivre", "craft__item craft__item--small")}</div></section>
-<section class="testimonial" aria-label="Témoignages"><div class="testimonial__viewport"><div class="testimonial__track">${testimonials.map((t, i) => `<article class="testimonial__panel" aria-hidden="${i !== 0}">${asset(t.image, "", "testimonial-photo")}<div class="testimonial__content container"><p class="section-kicker">(Témoignages)</p><blockquote>“${escape(t.quote)}”</blockquote><cite>${escape(t.author)}<br><span>${escape(t.role)}</span></cite></div></article>`).join("")}</div></div><div class="testimonial__ui container"><div class="testimonial__counter" aria-live="polite">01 / 03</div><div class="testimonial__controls" aria-label="Navigation des témoignages"><button type="button" data-testimonial-step="-1" aria-label="Témoignage précédent"><span class="reverse-arrow">${rightArrow}</span></button><div class="testimonial__dots" role="group" aria-label="Choisir un témoignage">${testimonials.map((t, i) => `<button type="button" data-testimonial="${i}" class="${i === 0 ? "is-active" : ""}" aria-label="Voir le témoignage de ${escape(t.author)}" aria-pressed="${i === 0}"></button>`).join("")}</div><button type="button" data-testimonial-step="1" aria-label="Témoignage suivant">${rightArrow}</button><button type="button" class="testimonial-pause" id="testimonial-pause" aria-label="Mettre les témoignages en pause">Pause</button></div></div></section>
-<section class="products-home container"><div class="products-home__brand">${brand}</div><h2>Nos Produits</h2><div class="products-home__list" id="products-grid"><p>Chargement des produits…</p></div><a class="collection-link" href="/products">Voir toute la collection ${rightArrow}</a></section><div class="marquee" aria-hidden="true"><span>✦ Whisky disponible prochainement · Whisky disponible prochainement · Whisky disponible prochainement</span></div>`;
+function textLines(value) {
+  return escape(value).replaceAll("\n", "<br>");
+}
+function homeImage(url, alt, classes = "", extra = "") {
+  return `<img class="${classes}" src="${escape(url)}" data-fallback="/distillery.png" alt="${escape(alt)}" loading="lazy" ${extra}>`;
+}
+function brandMarkup(text, branding) {
+  if (branding?.logo)
+    return `<span class="brand-lockup"><img class="brand-image" src="${escape(branding.logo)}" alt="${escape(branding.logoAlt)}"></span>`;
+  const lines = String(text).split("\n");
+  return `<span class="brand-lockup"><span>${lines.map((line, i) => (i === lines.length - 1 ? `<small>${escape(line)}</small>` : escape(line))).join("<br>")}</span>${barrel}</span>`;
+}
+export function homeMarkup(content = defaultHome) {
+  const { hero, about, craft, testimonials: t, collection, marquee } = content;
+  return `<section class="hero" id="accueil"><div class="hero__background"><img src="${escape(hero.image)}" data-fallback="/distillery.png" alt="${escape(hero.imageAlt)}" fetchpriority="high"></div><div class="hero__intro"><p><span>•</span>${escape(hero.name)}</p><h1>${textLines(hero.title)}</h1></div><p class="hero__note">${escape(hero.note)}</p><div class="hero__headline"><div class="hero__headline-line hero__headline-line--first"><span>${escape(hero.firstLead)}</span><em>${escape(hero.firstAccent)}</em></div><div class="hero__headline-line hero__headline-line--second"><span>${escape(hero.secondLead)}</span><a class="hero__cta" href="/products" aria-label="${escape(hero.buttonLabel)}">${rightArrow}</a><em>${escape(hero.secondAccent)}</em></div></div></section>
+${about.enabled ? `<section class="about-section container" id="about"><p class="section-kicker">${escape(about.kicker)}</p><h2>${textLines(about.text)}</h2></section>` : ""}
+${craft.enabled ? `<section class="craft container" id="savoir-faire"><h2>${escape(craft.title)}<br><em>${escape(craft.accent)}</em></h2><div class="craft__grid">${craft.images.map((image) => homeImage(image.url, image.alt, "craft__item")).join("")}</div></section>` : ""}
+${t.enabled ? `<section class="testimonial" aria-label="Témoignages"><div class="testimonial__viewport"><div class="testimonial__track">${t.items.map((item, i) => `<article class="testimonial__panel" aria-hidden="${i !== 0}">${homeImage(item.image, item.imageAlt, "testimonial-photo")}<div class="testimonial__content container"><p class="section-kicker">${escape(t.kicker)}</p><blockquote>“${escape(item.quote)}”</blockquote><cite>${escape(item.author)}<br><span>${escape(item.role)}</span></cite></div></article>`).join("")}</div></div><div class="testimonial__ui container"><div class="testimonial__counter" aria-live="polite">01 / ${String(t.items.length).padStart(2, "0")}</div><div class="testimonial__controls" aria-label="Navigation des témoignages"><button type="button" data-testimonial-step="-1" aria-label="Témoignage précédent"><span class="reverse-arrow">${rightArrow}</span></button><div class="testimonial__dots" role="group" aria-label="Choisir un témoignage">${t.items.map((item, i) => `<button type="button" data-testimonial="${i}" class="${i === 0 ? "is-active" : ""}" aria-label="Voir le témoignage de ${escape(item.author)}" aria-pressed="${i === 0}"></button>`).join("")}</div><button type="button" data-testimonial-step="1" aria-label="Témoignage suivant">${rightArrow}</button><button type="button" class="testimonial-pause" id="testimonial-pause" aria-label="Mettre les témoignages en pause">Pause</button></div></div></section>` : ""}
+${collection.enabled ? `<section class="products-home container"><div class="products-home__brand">${brandMarkup(collection.brand, content.branding)}</div><h2>${escape(collection.title)}</h2><div class="products-home__list" id="products-grid"><p>Chargement des produits…</p></div><a class="collection-link" href="/products">${escape(collection.linkLabel)} ${rightArrow}</a></section>` : ""}
+${marquee.enabled ? `<div class="marquee" aria-hidden="true"><span>${escape(marquee.text)}</span></div>` : ""}`;
+}
+export function footerMarkup(content = defaultHome) {
+  const { footer, collection } = content;
+  return `<footer class="site-footer" id="contact"><div class="footer__claim">${textLines(footer.claim)}</div><div class="footer__grid"><div class="footer__socials"><a href="/products">→ Nos Produits</a>${content.about.enabled ? '<a href="/#about">→ À propos</a>' : ""}</div><a href="/" class="footer-brand" aria-label="Accueil">${content.branding?.logo ? `<img class="footer-brand-image" src="${escape(content.branding.logo)}" alt="${escape(content.branding.logoAlt)}">` : textLines(collection.brand)}</a><div class="newsletter"><a class="footer__mail" href="mailto:${escape(footer.email)}">${escape(footer.email)}</a><p>${escape(footer.caption)}</p><a class="footer-write" href="mailto:${escape(footer.email)}">${escape(footer.buttonLabel)} →</a></div></div><div class="storefront-footer-legal"><small>© ${new Date().getFullYear()} Tous droits réservés</small><div><button data-legal="mentions">Mentions légales</button><button data-legal="conditions">CGV & livraison</button><button data-legal="confidentialite">Confidentialité</button></div><small>L’abus d’alcool est dangereux pour la santé. À consommer avec modération.</small></div></footer>`;
 }
 export function catalogMarkup(products, filter = "all") {
   const categories = [...new Set(products.map((p) => p.category))];

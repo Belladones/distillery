@@ -2066,3 +2066,13 @@
 .storefront .products-home__list {
   row-gap: 100px;
 }
+.storefront .brand-image {
+  max-width: 280px;
+  max-height: 160px;
+  object-fit: contain;
+}
+.storefront .footer-brand-image {
+  max-width: 180px;
+  max-height: 130px;
+  object-fit: contain;
+}
