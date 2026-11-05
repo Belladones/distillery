@@ -294,6 +294,43 @@ test(
       (await admin("/admin/media/" + imageId, "DELETE")).status,
       409,
     );
+    const textureProduct = {
+      ...product,
+      id: productId,
+      image: "/bottle.svg",
+      images: [],
+      texture_image: "/media/" + imageId,
+    };
+    assert.equal(
+      (await admin("/admin/products", "POST", textureProduct)).status,
+      200,
+    );
+    assert.equal(
+      (await admin("/admin/media/" + imageId, "DELETE")).status,
+      409,
+    );
+    assert.equal(
+      (
+        await admin("/admin/products", "POST", {
+          ...textureProduct,
+          texture_image: "javascript:alert(1)",
+        })
+      ).status,
+      400,
+    );
+    const { texture_image, ...oldClientProduct } = textureProduct;
+    assert.equal(
+      (await admin("/admin/products", "POST", oldClientProduct)).status,
+      200,
+    );
+    assert.equal(
+      (
+        await pool.query("SELECT texture_image FROM products WHERE id=$1", [
+          productId,
+        ])
+      ).rows[0].texture_image,
+      "/media/" + imageId,
+    );
     await pool.query("DELETE FROM products WHERE id=$1", [productId]);
     productId = undefined;
     assert.equal(

@@ -106,3 +106,11 @@ Aucun preset unsigned, widget navigateur ou clé dans le frontend n’est néces
 `MEDIA_STORAGE=postgres` reste disponible uniquement comme choix explicite pour le développement, les tests ou un retour au précédent stockage ; cela ne rapatrie pas les images Cloudinary existantes.
 
 Les tests couvrent le SDK Cloudinary avec transport simulé (signature configurée côté serveur, URL CDN, absence de binaire en base, conservation des liens, permissions et erreurs). Un vrai upload sur votre compte reste à tester après saisie des clés.
+
+## Cartes produits sur l’accueil
+
+Dans **Produits & stocks → Modifier**, utiliser **Image principale** pour la photo du produit, avec le fond déjà présent dans le fichier. Elle est cadrée au format portrait 5:6, centrée, sans aplat de couleur, marge intérieure ni mélange de couleurs ajouté par le site. Le champ **Texture derrière la photo sur l’accueil** permet d’importer une autre image (via Cloudinary) ou de coller son URL. Cette texture est facultative ; vider le champ puis enregistrer la retire de la carte sans supprimer le fichier de la médiathèque. Le nom et la flèche sont alignés sur la photo. Toute la carte est cliquable.
+
+La flèche glisse et devient orange au survol ou au focus clavier. Le mode « mouvements réduits » désactive les déplacements. Le catalogue et les fiches produits gardent leur présentation ; le choix de couleur reste réservé au fond de la fiche produit.
+
+La migration ajoute `products.texture_image` avec une valeur vide pour les produits existants, sans modifier leurs autres informations. Conserver `npm run db:migrate && npm start` comme commande de démarrage Render. Les images utilisées comme textures sont protégées contre la suppression dans la médiathèque.

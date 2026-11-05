@@ -10,6 +10,7 @@ import crypto from "node:crypto";
 import { pool } from "./db.js";
 import { registerContentRoutes } from "./content-media.js";
 import { products } from "./data.js";
+import { imageUrlValid } from "./public/home-content.js";
 import { fileURLToPath } from "node:url";
 const app = express(),
   production = process.env.NODE_ENV === "production";
@@ -668,6 +669,15 @@ app.get("/api/admin/orders", db, auth, admin, async (req, res) =>
 app.post("/api/admin/products", db, auth, admin, async (req, res) => {
   const p = req.body;
   p.images ??= [];
+  if (p.texture_image === undefined) {
+    p.texture_image = p.id
+      ? (
+          await pool.query("SELECT texture_image FROM products WHERE id=$1", [
+            Number(p.id),
+          ])
+        ).rows[0]?.texture_image || ""
+      : "";
+  }
   const fields = [
     "slug",
     "name",
@@ -678,6 +688,7 @@ app.post("/api/admin/products", db, auth, admin, async (req, res) => {
     "stock",
     "color",
     "image",
+    "texture_image",
     "images",
     "description",
     "composition",
@@ -686,10 +697,21 @@ app.post("/api/admin/products", db, auth, admin, async (req, res) => {
   ];
   if (
     fields
-      .filter((k) => !["active", "price_cents", "stock", "images"].includes(k))
+      .filter(
+        (k) =>
+          ![
+            "active",
+            "price_cents",
+            "stock",
+            "images",
+            "texture_image",
+          ].includes(k),
+      )
       .some(
         (k) => typeof p[k] !== "string" || !p[k].trim() || p[k].length > 10000,
       ) ||
+    typeof p.texture_image !== "string" ||
+    (p.texture_image !== "" && !imageUrlValid(p.texture_image)) ||
     !Array.isArray(p.images) ||
     p.images.length > 8 ||
     p.images.some(

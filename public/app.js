@@ -121,7 +121,7 @@ function persist() {
 }
 function renderProducts() {
   const grid = $("#products-grid");
-  if (grid) grid.innerHTML = cards(products);
+  if (grid) grid.innerHTML = cards(products, true);
   if (location.pathname === "/products")
     $("#home").innerHTML = catalogMarkup(products, filter);
 }
@@ -318,7 +318,7 @@ function editProduct(id) {
   const field = (key, label, type = "text") =>
     `<label>${label}<input type="${type}" name="${key}" value="${escape(p[key] ?? "")}" ${type === "number" ? 'min="0" step="1"' : ""} required></label>`;
   modal(
-    `<div class="eyebrow">ADMINISTRATION</div><h2 class="modal-title">${id ? "Modifier le produit" : "Un nouvel esprit."}</h2><form id="product-form" class="form"><div class="form-grid">${field("name", "Nom")}${field("slug", "Identifiant URL (lettres, chiffres, tirets)")}${field("category", "Catégorie")}${field("price_cents", "Prix TTC en centimes (5900 = 59 €)", "number")}${field("volume", "Contenance")}${field("abv", "Degré d’alcool")}${field("stock", "Quantité disponible", "number")}${field("color", "Couleur du fond", "color")}<div class="span2">${imageField("image", "Image principale", p.image)}</div><div class="span2">${galleryField(p.images || [])}</div>${["description", "composition", "cocktail"].map((k) => `<label class="span2">${{ description: "Description", composition: "Composition", cocktail: "Recette de cocktail" }[k]}<textarea name="${k}" required>${escape(p[k] || "")}</textarea></label>`).join("")}</div><label class="check"><input type="checkbox" name="active" ${p.active ? "checked" : ""}> Visible dans la boutique</label><button type="submit" class="primary">Enregistrer le produit ↗</button></form>`,
+    `<div class="eyebrow">ADMINISTRATION</div><h2 class="modal-title">${id ? "Modifier le produit" : "Un nouvel esprit."}</h2><form id="product-form" class="form"><div class="form-grid">${field("name", "Nom")}${field("slug", "Identifiant URL (lettres, chiffres, tirets)")}${field("category", "Catégorie")}${field("price_cents", "Prix TTC en centimes (5900 = 59 €)", "number")}${field("volume", "Contenance")}${field("abv", "Degré d’alcool")}${field("stock", "Quantité disponible", "number")}${field("color", "Fond de la fiche produit (hors accueil)", "color")}<div class="span2">${imageField("image", "Image principale", p.image)}</div><div class="span2">${imageField("texture_image", "Texture derrière la photo sur l’accueil (facultative)", p.texture_image || "", false)}<p class="modal-subtitle">La photo principale est affichée avec son propre fond. La texture apparaît derrière elle. Laissez ce champ vide pour ne pas afficher de texture.</p></div><div class="span2">${galleryField(p.images || [])}</div>${["description", "composition", "cocktail"].map((k) => `<label class="span2">${{ description: "Description", composition: "Composition", cocktail: "Recette de cocktail" }[k]}<textarea name="${k}" required>${escape(p[k] || "")}</textarea></label>`).join("")}</div><label class="check"><input type="checkbox" name="active" ${p.active ? "checked" : ""}> Visible dans la boutique</label><button type="submit" class="primary">Enregistrer le produit ↗</button></form>`,
     true,
   );
   $("#product-form").addEventListener("submit", (e) => {

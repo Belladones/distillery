@@ -310,7 +310,7 @@ export function registerContentRoutes(
     const {
       rows: [usage],
     } = await pool.query(
-      "SELECT EXISTS(SELECT 1 FROM products CROSS JOIN unnest($1::text[]) AS refs(url) WHERE position(refs.url IN image)>0 OR position(refs.url IN images::text)>0) OR EXISTS(SELECT 1 FROM site_content CROSS JOIN unnest($1::text[]) AS refs(url) WHERE position(refs.url IN content::text)>0) AS used",
+      "SELECT EXISTS(SELECT 1 FROM products CROSS JOIN unnest($1::text[]) AS refs(url) WHERE position(refs.url IN image)>0 OR position(refs.url IN texture_image)>0 OR position(refs.url IN images::text)>0) OR EXISTS(SELECT 1 FROM site_content CROSS JOIN unnest($1::text[]) AS refs(url) WHERE position(refs.url IN content::text)>0) AS used",
       [urls],
     );
     if (usage.used)

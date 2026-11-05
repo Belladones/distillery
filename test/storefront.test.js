@@ -55,3 +55,17 @@ test("les sections masquées disparaissent et les textes de l’accueil restent 
     }),
   );
 });
+
+test("la carte d’accueil utilise la photo sans fond ajouté et sa texture facultative", () => {
+  const html = productCard(
+    { ...p, texture_image: "/media/texture-test" },
+    0,
+    true,
+  );
+  assert.match(html, /src="\/media\/texture-test"/);
+  assert.match(html, /src="\/bottle.svg"/);
+  assert.ok(!html.includes("background-color"));
+  assert.ok(!html.includes("<script>"));
+  const plain = productCard(p, 0, true);
+  assert.ok(!plain.includes('class="product-card__texture"'));
+});

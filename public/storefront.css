@@ -2076,3 +2076,176 @@
   max-height: 130px;
   object-fit: contain;
 }
+
+/* Homepage: the photograph includes its own background; the optional texture sits behind it. */
+.storefront .products-home__list {
+  align-items: start;
+}
+.storefront .home-product-card {
+  min-height: 0;
+}
+.storefront .home-product-card__link {
+  display: block;
+  width: 100%;
+  outline-offset: 9px;
+}
+.storefront .home-product-card__visual {
+  position: relative;
+  padding-top: 27%;
+  isolation: isolate;
+}
+.storefront .home-product-card .product-card__texture {
+  position: absolute;
+  inset: 0 auto auto 0;
+  width: 100%;
+  height: 76%;
+  object-fit: cover;
+  background: none;
+  filter: none;
+  z-index: 0;
+  transition: transform 0.65s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+.storefront .home-product-card .product-card__image {
+  display: block;
+  position: relative;
+  width: 74%;
+  height: auto;
+  aspect-ratio: 5 / 6;
+  min-height: 0;
+  margin: 0 auto;
+  overflow: hidden;
+  z-index: 1;
+  background: none;
+}
+.storefront .home-product-card .product-card__image img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  inset: 0;
+  max-width: 100%;
+  padding: 0;
+  object-fit: cover;
+  mix-blend-mode: normal;
+  filter: none;
+  transition: transform 0.65s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+.storefront .home-product-card .product-card__meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  width: 74%;
+  margin: 0 auto;
+  padding: 12px 0 0;
+}
+.storefront .home-product-card .product-card__meta h3 {
+  font-family: inherit;
+  font-size: clamp(21px, 2.1vw, 32px);
+  font-weight: 400;
+  line-height: 1.15;
+  letter-spacing: -0.025em;
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+.storefront .home-product-card .product-card__meta p {
+  font-size: 11px;
+  margin: 5px 0 0;
+}
+.storefront .home-product-card__arrow {
+  position: relative;
+  display: block;
+  flex: 0 0 52px;
+  width: 52px;
+  height: 34px;
+  overflow: hidden;
+  color: var(--dark);
+  transition:
+    color 0.3s ease,
+    transform 0.5s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+.storefront .home-product-card__arrow-first,
+.storefront .home-product-card__arrow-next {
+  display: flex;
+  align-items: center;
+  position: absolute;
+  inset: 0;
+  transition:
+    transform 0.5s cubic-bezier(0.22, 0.68, 0.2, 1),
+    opacity 0.35s ease;
+}
+.storefront .home-product-card__arrow-next {
+  transform: translateX(-140%);
+  opacity: 0;
+}
+.storefront .home-card-arrow {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.storefront .home-product-card:focus-within .home-product-card__arrow {
+  color: var(--orange);
+  transform: translateX(4px);
+}
+.storefront .home-product-card:focus-within .home-product-card__arrow-first {
+  transform: translateX(140%);
+  opacity: 0;
+}
+.storefront .home-product-card:focus-within .home-product-card__arrow-next {
+  transform: translateX(0);
+  opacity: 1;
+}
+@media (hover: hover) {
+  .storefront .home-product-card:hover .product-card__image img {
+    transform: scale(1.025);
+  }
+  .storefront .home-product-card:hover .product-card__texture {
+    transform: translateY(-4px);
+  }
+  .storefront .home-product-card:hover .home-product-card__arrow {
+    color: var(--orange);
+    transform: translateX(4px);
+  }
+  .storefront .home-product-card:hover .home-product-card__arrow-first {
+    transform: translateX(140%);
+    opacity: 0;
+  }
+  .storefront .home-product-card:hover .home-product-card__arrow-next {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+@media (max-width: 700px) {
+  .storefront .home-product-card .product-card__meta h3 {
+    font-size: 29px;
+  }
+  .storefront .home-product-card__arrow {
+    flex-basis: 54px;
+    width: 54px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .storefront .home-product-card .product-card__texture,
+  .storefront .home-product-card .product-card__image img,
+  .storefront .home-product-card__arrow {
+    transform: none !important;
+    transition: none;
+  }
+  .storefront .home-product-card__arrow-first {
+    transform: none !important;
+    opacity: 1 !important;
+    transition: none;
+  }
+  .storefront .home-product-card__arrow-next {
+    display: none;
+  }
+}
+
+.storefront .home-product-card--plain .home-product-card__visual {
+  padding-top: 0;
+}
+@media (hover: none) {
+  .storefront .home-product-card:hover .product-card__image img {
+    transform: none;
+  }
+}

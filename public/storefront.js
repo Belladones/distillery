@@ -21,13 +21,19 @@ export const brand = `<span class="brand-lockup"><span>ANTOINE<br>BRAVAR<br><sma
 export const testimonials = defaultHome.testimonials.items;
 export const asset = (name, alt, classes = "", extra = "") =>
   `<img class="${classes}" src="/assets/${escape(name)}" data-fallback="/distillery.png" alt="${escape(alt)}" loading="lazy" ${extra}>`;
-export function productCard(p, index = 0) {
+export function productCard(p, index = 0, home = false) {
   const href = "/products/" + encodeURIComponent(p.slug);
+  if (home) {
+    const arrow =
+      '<svg class="home-card-arrow" viewBox="0 0 36 24" aria-hidden="true"><path d="M2 12h26" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="m25 5 10 7-10 7Z" fill="currentColor"/></svg>';
+    return `<article class="product-card product-card--${index % 3} home-product-card${p.texture_image ? "" : " home-product-card--plain"}"><a class="home-product-card__link" href="${href}" aria-label="Découvrir ${escape(p.name)}"><div class="home-product-card__visual">${p.texture_image ? `<img class="product-card__texture" src="${escape(p.texture_image)}" alt="" aria-hidden="true" loading="lazy">` : ""}<div class="product-card__image"><img src="${escape(p.image)}" alt="${escape(p.name)}" loading="lazy"></div></div><div class="product-card__meta"><div><h3>${escape(p.name)}</h3>${p.stock <= 0 ? "<p>Épuisé</p>" : ""}</div><span class="home-product-card__arrow" aria-hidden="true"><span class="home-product-card__arrow-first">${arrow}</span><span class="home-product-card__arrow-next">${arrow}</span></span></div></a></article>`;
+  }
+
   return `<article class="product-card product-card--${index % 3}"><div class="product-card__texture" aria-hidden="true"></div><a class="product-card__image" href="${href}" style="background-color:${escape(p.color)}"><img src="${escape(p.image)}" alt="Bouteille ${escape(p.name)}" loading="lazy"></a><div class="product-card__meta"><div><h3><a href="${href}">${escape(p.name)}</a></h3><p>${escape(p.category)} · ${money(p.price_cents)}</p>${p.stock <= 0 ? "<p>Épuisé</p>" : ""}</div><a href="${href}" aria-label="Voir ${escape(p.name)}">${rightArrow}</a></div></article>`;
 }
-export function cards(products) {
+export function cards(products, home = false) {
   return (
-    products.map(productCard).join("") ||
+    products.map((p, i) => productCard(p, i, home)).join("") ||
     '<p class="empty">Aucun produit disponible pour le moment.</p>'
   );
 }

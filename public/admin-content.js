@@ -192,7 +192,7 @@ export async function renderHomeEditor(
     preview.className = "home-preview";
     preview.innerHTML = `<div class="preview-toolbar"><span>Aperçu — vos modifications ne sont pas encore publiées.</span><button type="button" class="secondary" data-preview-close>Fermer l’aperçu ×</button></div><div class="storefront">${homeMarkup(readHomeForm(form))}</div>`;
     const grid = preview.querySelector("#products-grid");
-    if (grid) grid.innerHTML = cards(getProducts());
+    if (grid) grid.innerHTML = cards(getProducts(), true);
     preview
       .querySelectorAll(".storefront [id]")
       .forEach((el) => el.removeAttribute("id"));
