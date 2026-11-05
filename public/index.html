@@ -22,7 +22,7 @@
         ><span class="logo-mark">AB<span>≋</span></span
         ><span>ANTOINE BRAVAR<small>DISTILLERY</small></span></a
       >
-      <nav aria-label="Navigation principale">
+      <nav id="site-navigation" aria-label="Navigation principale">
         <a href="/#accueil">Accueil</a><a href="/#about">À propos</a
         ><a href="/products">Nos Produits</a><a href="/#contact">Contact</a>
       </nav>
@@ -39,6 +39,8 @@
           id="menu-button"
           class="icon-button mobile-menu"
           aria-label="Ouvrir le menu"
+          aria-controls="site-navigation"
+          aria-expanded="false"
         >
           ☰
         </button>
@@ -287,35 +289,31 @@
     <section id="account-page" class="account-page section" hidden></section>
     <div id="storefront-footer" class="storefront">
       <footer class="site-footer" id="contact">
-        <div class="footer__claim">
-          Micro-distillerie indépendante en circuit court,<br />dédiée aux
-          spiritueux en éditions limitées.
-        </div>
-        <div class="footer__grid">
-          <div class="footer__socials">
-            <a href="/products">→ Nos Produits</a
-            ><a href="/#about">→ À propos</a>
+        <div class="footer__main">
+          <div class="footer__identity">
+            <a href="/" class="footer-brand" aria-label="Accueil"
+              >ANTOINE<br />BRAVAR<br />DISTILLERY</a
+            >
+            <p class="footer__claim">
+              Micro-distillerie indépendante en circuit court,<br />dédiée aux
+              spiritueux en éditions limitées.
+            </p>
           </div>
-          <a
-            href="/"
-            class="footer-brand"
-            aria-label="Accueil Antoine Bravar Distillery"
-            >ANTOINE<br />BRAVAR<br /><small>DISTILLERY</small></a
-          >
-          <div class="newsletter">
+          <nav class="footer__links" aria-label="Navigation du pied de page">
+            <a href="/products">Nos Produits</a><a href="/#about">À propos</a>
+          </nav>
+          <div class="footer__contact">
             <a class="footer__mail" href="mailto:antoinedistillery@gmail.com"
               >antoinedistillery@gmail.com</a
             >
-            <p>Restez au cœur de la distillerie</p>
+            <p class="footer__caption">Restez au cœur de la distillerie</p>
             <a class="footer-write" href="mailto:antoinedistillery@gmail.com"
               >Écrivez-nous →</a
             >
           </div>
         </div>
         <div class="storefront-footer-legal">
-          <small
-            >© <span class="storefront-year"></span> Tous droits réservés</small
-          >
+          <small>© 2026 Tous droits réservés</small>
           <div>
             <button data-legal="mentions">Mentions légales</button
             ><button data-legal="conditions">CGV & livraison</button
@@ -328,31 +326,6 @@
         </div>
       </footer>
     </div>
-    <footer id="service-footer" hidden>
-      <div class="footer-top">
-        <a href="/#accueil" class="footer-logo"
-          >Les Libres<span>DISTILLERIE INDÉPENDANTE</span></a
-        >
-        <h2>
-          Du caractère dans le verre.<br /><em>De la liberté dans l’esprit.</em>
-        </h2>
-        <a href="mailto:bonjour@leslibres.fr" class="footer-contact"
-          >Parlons spiritueux ↗</a
-        >
-      </div>
-      <div class="footer-bottom">
-        <span>© <span id="year"></span> Les Libres</span>
-        <div>
-          <button data-legal="mentions">Mentions légales</button
-          ><button data-legal="conditions">CGV & livraison</button
-          ><button data-legal="confidentialite">Confidentialité</button>
-        </div>
-        <span
-          >L’ABUS D’ALCOOL EST DANGEREUX POUR LA SANTÉ. À CONSOMMER AVEC
-          MODÉRATION.</span
-        >
-      </div>
-    </footer>
     <dialog id="modal">
       <button class="close-modal" aria-label="Fermer">×</button>
       <div id="modal-content"></div>

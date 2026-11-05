@@ -244,7 +244,7 @@ test(
     assert.equal(published.content.craft.enabled, false);
     const html = await (await fetch(base)).text();
     assert.match(html, /La nouvelle distillerie/);
-    assert.match(html, /<nav\s+aria-label="Navigation principale">/);
+    assert.match(html, /<nav\b[^>]*aria-label="Navigation principale"[^>]*>/);
     assert.match(html, /class="header-brand-image"/);
     assert.ok(
       html.includes(

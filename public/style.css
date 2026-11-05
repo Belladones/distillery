@@ -35,6 +35,8 @@
   --ink: #30201c;
   --orange: #ff643d;
   --line: #cfc8ba;
+  --header-height: 92px;
+  --focus-ring: #85756b;
   --serif: "Playfair Display", Georgia, serif;
   --sans: "DM Sans", Arial, sans-serif;
 }
@@ -43,7 +45,7 @@
 }
 html {
   scroll-behavior: smooth;
-  scroll-padding-top: 95px;
+  scroll-padding-top: calc(var(--header-height) + 14px);
 }
 body {
   margin: 0;
@@ -81,23 +83,26 @@ a:focus-visible,
 input:focus-visible,
 textarea:focus-visible,
 select:focus-visible {
-  outline: 2px solid var(--orange);
+  outline: 2px solid var(--focus-ring);
   outline-offset: 4px;
 }
 [hidden] {
   display: none !important;
 }
 .header {
-  height: 92px;
+  height: var(--header-height);
   padding: 0 5%;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 30px;
   border-bottom: 1px solid var(--line);
-  position: relative;
-  z-index: 10;
-  background: var(--cream);
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  background: rgba(234, 230, 220, 0.96);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
 }
 .logo {
   display: flex;
@@ -1197,13 +1202,16 @@ dialog.wide {
   }
 }
 @media (max-width: 700px) {
+  :root {
+    --header-height: 76px;
+  }
   .header {
-    height: 76px;
+    height: var(--header-height);
   }
   .header nav {
     display: none;
     position: absolute;
-    top: 76px;
+    top: var(--header-height);
     left: 0;
     right: 0;
     background: var(--cream);
@@ -1605,7 +1613,7 @@ dialog.wide {
   max-width: 100%;
 }
 .upload-button:focus-within {
-  outline: 2px solid var(--orange);
+  outline: 2px solid var(--focus-ring);
   outline-offset: 4px;
 }
 .upload-button input[type="file"] {
@@ -1675,7 +1683,7 @@ dialog.wide {
 }
 .home-editor .editor-toolbar {
   position: sticky;
-  top: 0;
+  top: var(--header-height);
   background: var(--cream);
   z-index: 2;
   padding: 16px 0;
@@ -1838,4 +1846,26 @@ dialog.wide {
     max-width: 135px;
     max-height: 42px;
   }
+}
+
+/* Neutral selection and focus feedback; brand accents remain on action buttons. */
+::selection {
+  background: #d2c8ba;
+  color: #30201c;
+  text-shadow: none;
+}
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+.header nav a {
+  border-bottom: 1px solid transparent;
+  padding: 5px 0;
+  transition:
+    color 0.2s,
+    border-color 0.2s;
+}
+.header nav a:hover,
+.header nav a.active {
+  color: var(--ink);
+  border-bottom-color: #9f9081;
 }

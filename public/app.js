@@ -453,12 +453,11 @@ async function route() {
   const account = location.hash === "#compte";
   $("#home").hidden = account;
   $("#account-page").hidden = !account;
-  $("#storefront-footer").hidden = account;
-  if (!account) $("#storefront-footer").innerHTML = footerMarkup(homeContent);
+  $("#storefront-footer").hidden = false;
+  $("#storefront-footer").innerHTML = footerMarkup(homeContent);
   $$('.header nav a[href="/#about"]').forEach(
     (a) => (a.hidden = !homeContent.about.enabled),
   );
-  $("#service-footer").hidden = !account;
   const isCatalog = location.pathname === "/products";
   $$(".header nav a").forEach((a) =>
     a.classList.toggle(
@@ -528,6 +527,10 @@ $("#cart-button").addEventListener("click", showCart);
 $("#account-button").addEventListener("click", () =>
   user ? (location.hash = "compte") : showAuth(),
 );
+function closeMenu() {
+  $(".header nav").classList.remove("open");
+  $("#menu-button").setAttribute("aria-expanded", "false");
+}
 $("#menu-button").addEventListener("click", () => {
   $(".header nav").classList.toggle("open");
   $("#menu-button").setAttribute(
@@ -556,7 +559,7 @@ document.addEventListener("click", async (e) => {
         url.pathname.startsWith("/products/"))
     ) {
       e.preventDefault();
-      $(".header nav").classList.remove("open");
+      closeMenu();
       navigate(url.pathname + url.search + url.hash);
       return;
     }
@@ -604,7 +607,7 @@ document.addEventListener("click", async (e) => {
     );
     startCarousel();
   }
-  if (el.closest(".header nav")) $(".header nav").classList.remove("open");
+  if (el.closest(".header nav")) closeMenu();
   if (el.dataset.gallery && $("#gallery-image"))
     $("#gallery-image").src = el.dataset.gallery;
   if (el.dataset.product) showProduct(Number(el.dataset.product));
@@ -710,7 +713,6 @@ document.addEventListener(
   true,
 );
 attachMediaUploads({ api });
-$("#year").textContent = new Date().getFullYear();
 $$(".storefront-year").forEach(
   (el) => (el.textContent = new Date().getFullYear()),
 );

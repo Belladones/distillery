@@ -184,7 +184,7 @@ export const homeSections = [
     ],
   },
   {
-    title: "Pied de page (également visible sur les pages produits)",
+    title: "Pied de page partagé sur le site",
     fields: [
       field("footer.claim", "Présentation de la distillerie", "textarea", 1000),
       field("footer.email", "Adresse de contact", "email", 254),
